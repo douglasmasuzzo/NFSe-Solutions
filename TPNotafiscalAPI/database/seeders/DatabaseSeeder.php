@@ -80,6 +80,9 @@ class DatabaseSeeder extends Seeder
             'fornecedor_id' => $fornecedor1->id,
             'numero' => '000001',
             'dt_emissao' => '2026-09-01',
+            'valor_total' => 260.00,
+            'forma_pagamento' => 'Boleto',
+            'observacoes' => 'Entrega conferida sem avarias.',
             'imagem_nf' => null,
         ]);
 
@@ -101,6 +104,9 @@ class DatabaseSeeder extends Seeder
             'fornecedor_id' => $fornecedor2->id,
             'numero' => '000002',
             'dt_emissao' => '2026-09-02',
+            'valor_total' => 512.00,
+            'forma_pagamento' => 'Pix',
+            'observacoes' => null,
             'imagem_nf' => null,
         ]);
 
@@ -122,6 +128,9 @@ class DatabaseSeeder extends Seeder
             'fornecedor_id' => $fornecedor3->id,
             'numero' => '000003',
             'dt_emissao' => '2026-09-03',
+            'valor_total' => 695.00,
+            'forma_pagamento' => 'Transferência',
+            'observacoes' => null,
             'imagem_nf' => null,
         ]);
 
@@ -143,6 +152,9 @@ class DatabaseSeeder extends Seeder
             'fornecedor_id' => $fornecedor1->id,
             'numero' => '000004',
             'dt_emissao' => '2026-09-05',
+            'valor_total' => 394.50,
+            'forma_pagamento' => 'Boleto',
+            'observacoes' => null,
             'imagem_nf' => null,
         ]);
 
@@ -164,6 +176,9 @@ class DatabaseSeeder extends Seeder
             'fornecedor_id' => $fornecedor2->id,
             'numero' => '000005',
             'dt_emissao' => '2026-09-07',
+            'valor_total' => 458.75,
+            'forma_pagamento' => 'Pix',
+            'observacoes' => 'Fornecedor concedeu desconto de volume.',
             'imagem_nf' => null,
         ]);
 
