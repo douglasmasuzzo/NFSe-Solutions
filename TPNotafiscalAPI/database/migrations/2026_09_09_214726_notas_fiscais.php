@@ -17,6 +17,9 @@ return new class extends Migration
 
             $table->string('numero');
             $table->date('dt_emissao');
+            $table->decimal('valor_total', 14, 2)->default(0);
+            $table->string('forma_pagamento');
+            $table->text('observacoes')->nullable();
             $table->string('imagem_nf')->nullable();
 
             $table->timestamps();

@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "NFSe Solutions",
+    "slug": "nfse-solutions",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "nfseapp",
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O app precisa acessar suas fotos para anexar a imagem da nota fiscal."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
