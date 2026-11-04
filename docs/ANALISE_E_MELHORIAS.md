@@ -2,6 +2,9 @@
 
 > Documento técnico de apoio à apresentação (`docs/APRESENTACAO.md`).
 > Data da análise: 04/11/2026 — revisão direta do código-fonte do repositório.
+> **Atualização: itens P0-1, P0-2, P0-3, P1-1 a P1-5 e P2-3 concluídos**
+> (autenticação, câmera, paginação, URL de mídia, itens no formulário,
+> erros por campo e 62 testes automatizados — ver `TESTES.md`).
 
 ---
 
@@ -11,39 +14,49 @@
 
 | Camada | Arquivos | Situação |
 |---|---|---|
-| Rotas | `routes/api.php` (3 `apiResource` + `/user`) | ✅ funcional, ⚠️ sem autenticação |
+| Rotas | `routes/api.php` (login/logout + 3 `apiResource` + `/user`) | ✅ funcional, ✅ **protegidas por `auth:sanctum`** |
 | Controllers | `NotaF`, `Fornecedor`, `Produto` | ✅ CRUD completo, validação inline, upload e sync de itens |
-| Models | `NotaF`, `Fornecedor`, `Produto`, `User` | ✅ relacionamentos e accessor `imagem_nf_url` corretos |
+| Models | `NotaF`, `Fornecedor`, `Produto`, `User` | ✅ relacionamentos, accessor `imagem_nf_url` e `HasApiTokens` |
 | Migrations | 8 arquivos (users, cache, jobs, tokens, 4 de negócio) | ✅ modelo relacional íntegro (FK + cascade) |
-| Seeder | `DatabaseSeeder` | ✅ 3 fornecedores, 5 produtos, 5 notas com itens |
-| Storage | `storage/app/public/` | ⚠️ vazio; exige `php artisan storage:link` |
-| Testes | `tests/Feature/ExampleTest` | ❌ apenas exemplo padrão do Laravel |
-| README | — | ❌ inexistente (o README raiz promete um em cada pasta) |
+| Seeder | `DatabaseSeeder` | ✅ 3 fornecedores, 5 produtos, 5 notas + **usuário de teste** (`test@example.com`/`password`, senha bcrypt) |
+| Storage | `storage/app/public/` | ⚠️ exige `php artisan storage:link` (documentado no README) |
+| Testes | `tests/Feature/{AuthTest,NotaFiscalCrudTest,FornecedorProdutoTest}` | ✅ **25 testes, 25 passando** (PHPUnit + SQLite em memória) |
+| README | `TPNotafiscalAPI/README.md` | ✅ criado (setup, rotas, login, testes) |
 
-**Endpoints operacionais:** 15 rotas REST (notas-fiscais, fornecedores,
-produtos) com paginação (15/página), filtro por `fornecedor_id`, validação de
-imagem (jpg/jpeg/png, até 5 MB) e persistência em `multipart`.
+**Endpoints operacionais:** 18 rotas (3 de autenticação + 15 REST) com
+paginação (15/página), filtro por `fornecedor_id`, validação de imagem
+(jpg/jpeg/png, até 5 MB), persistência em `multipart` e **token em todas as
+rotas de recurso**.
+
+> **Bug corrigido (crítico):** o singularizador do Laravel gerava os parâmetros
+> `{notas-fiscai}` e `{fornecedore}` (regra de plural em inglês), que não
+> casavam com os nomes dos parâmetros dos controllers — o *implicit binding*
+> era descartado em silêncio e `show`/`update`/`destroy` recebiam modelos
+> vazios (nunca atualizavam nem excluíam nada). Corrigido com
+> `->parameters(['notas-fiscais' => 'nota', 'fornecedores' => 'fornecedor'])`.
 
 ### 1.2 Frontend — `NFSeApp/` (Expo SDK 57, React Native 0.86, TypeScript strict)
 
 | Camada | Arquivos | Situação |
 |---|---|---|
-| Rotas (`app/`) | `_layout`, `index`, `notas-fiscais/{index,new,[id]/edit,[id]/delete}` | ✅ rotas finas, modal no delete |
+| Rotas (`app/`) | `_layout`, `login`, `index`, `notas-fiscais/{index,new,[id]/edit,[id]/delete}` | ✅ rotas finas, modal no delete, **`RequireAuth` em toda rota protegida** |
+| Autenticação | `features/auth/` (AuthContext, useLogin/useLogout, LoginScreen, tokenStorage) | ✅ token no `expo-secure-store` + interceptor axios + 401 automático |
 | Telas (`screens/`) | List, Create, Edit, Delete | ✅ loading/erro/vazio/retry tratados |
-| Hooks (6) | `useNotasFiscais`, `useNotaFiscal`, `useCreate`, `useUpdate`, `useDelete`, `useFornecedores` | ✅ React Query com invalidação de cache |
+| Hooks (7+1) | React Query (notas, fornecedores, produtos, login, logout) | ✅ `useInfiniteQuery` na lista + invalidação de cache |
 | Componentes | `NotaFiscalForm` (compartilhado), `NotaFiscalCard` | ✅ DRY entre criação e edição |
-| Contratos | `NotaFiscalSchema.ts` (zod: entrada/saída) | ✅ espelha o Model Laravel |
-| Utilitários | `toFormData.ts` | ✅ formato multipart do RN |
-| Infra | `services/api.ts` (axios, timeout 10 s), `constants/Theme.ts` | ✅ |
-| Imagem | `expo-image-picker` (só galeria, quality 0.7, edição 4:3) | ⚠️ sem câmera |
-| Testes/lint | — | ❌ nenhum |
+| Contratos | `NotaFiscalSchema.ts` (zod: entrada/saída, itens) | ✅ espelha o Model Laravel |
+| Utilitários | `toFormData.ts`, `apiErrors.ts`, `mediaUrl.ts` | ✅ multipart, erros 422 por campo, URL da foto corrigida |
+| Infra | `services/api.ts` (axios, Bearer + 401, timeout 10 s), `constants/Theme.ts` | ✅ |
+| Imagem | `expo-image-picker` (**câmera + galeria**, quality 0.7, edição 4:3) | ✅ permissão de câmera no `app.json` |
+| Testes/tipos | Vitest (`npm test`), tsc (`npm run typecheck`) | ✅ **23 testes passando, 0 erros de tipo** |
 
 ### 1.3 Fluxo central (foto → dado persistido)
 
-`NotaFiscalForm` → `pickImage()` (galeria) → `zod` valida → `toFormData()` →
-`api.post('/notas-fiscais', multipart)` → `NotaFController@store` valida →
-`Storage::disk('public')->store()` → `NotaF::create()` + `sync(produtos)` →
-201 → React Query invalida `['notas-fiscais']`.
+`RequireAuth` confere a sessão → `NotaFiscalForm` → `pickFromCamera()` ou
+`pickFromGallery()` → `zod` valida → `toFormData()` →
+`api.post('/notas-fiscais', multipart + Bearer)` → `NotaFController@store`
+valida → `Storage::disk('public')->store()` → `NotaF::create()` +
+`sync(produtos)` → 201 → React Query invalida `['notas-fiscais']`.
 
 ---
 
@@ -52,15 +65,15 @@ imagem (jpg/jpeg/png, até 5 MB) e persistência em `multipart`.
 O objetivo é **reconhecer informações de notas fiscais a partir da captura da
 imagem**. Hoje o projeto entrega:
 
-- ✅ **captura/seleção da imagem** (parcial: só galeria, não câmera)
-- ✅ **armazenamento e exibição** da imagem
+- ✅ **captura/seleção da imagem** (**câmera** e galeria)
+- ✅ **armazenamento e exibição** da imagem (URL corrigida para o IP da API)
 - ❌ **reconhecimento (OCR) da imagem** — inexistente. Nenhuma dependência de
   OCR/vision no `package.json` ou `composer.json`, nenhum endpoint, nenhum
   código de extração. Os campos são 100 % digitados.
 
-**Conclusão: a parte central do objetivo ainda não foi implementada.** O CRUD é
-a base necessária (Etapa 1 e 2 concluídas), mas o reconhecimento é a lacuna
-principal.
+**Conclusão: a parte central do objetivo ainda não foi implementada.** O CRUD
+(Etapa 1), a interface (Etapa 2), a **autenticação**, a **câmera** e os
+**testes** estão concluídos; o reconhecimento é a lacuna principal.
 
 ---
 
@@ -68,52 +81,49 @@ principal.
 
 ### 🔴 P0 — bugs ou lacunas que comprometem a demonstração
 
-| # | Problema | Evidência | Efeito prático |
-|---|---|---|---|
-| P0-1 | **Lista truncada em 15 registros** — `useNotasFiscais` lê só `.data` da primeira página, sem `page`/`per_page` | `hooks/useNotasFiscais.ts` × `NotaFController@index` (`paginate(15)`) | Notas a partir da 16ª nunca aparecem |
-| P0-2 | **URL da foto pode não abrir no celular** — `Storage::url()` usa `APP_URL` (ex.: `http://localhost:8000`) e `storage/app/public` está vazio (sem `storage:link`) | `NotaF.php::getImagemNfUrlAttribute` | Miniaturas "Sem foto"/quebradas em dispositivo físico |
-| P0-3 | **Sem câmera** — só `launchImageLibraryAsync`; `app.json` não declara permissão de câmera | `NotaFiscalForm.tsx::pickImage` | Não atende "captura a imagem da nota" |
-| P0-4 | **Sem OCR/reconhecimento** | busca por `ocr|reconhe|vision|mlkit` = 0 resultados | Objetivo central do projeto ausente |
+| # | Problema | Status |
+|---|---|---|
+| P0-1 | **Lista truncada em 15 registros** — hoje usa `useInfiniteQuery` com botão "Carregar mais" | ✅ **concluído** |
+| P0-2 | **URL da foto pode não abrir no celular** — `resolveMediaUrl()` reconstrói a URL com o IP da API (testado no Vitest) | ✅ **concluído** |
+| P0-3 | **Sem câmera** — agora `launchCameraAsync` + permissão `cameraPermission` no `app.json` (botões "Câmera" e "Galeria") | ✅ **concluído** |
+| P0-4 | **Sem OCR/reconhecimento** — busca por `ocr\|reconhe\|vision\|mlkit` = 0 resultados | ❌ pendente (Fase B) |
 
 ### 🟠 P1 — qualidade, segurança e completude
 
-| # | Problema | Evidência |
+| # | Problema | Status |
 |---|---|---|
-| P1-1 | **API totalmente aberta** — nenhum `apiResource` tem middleware; Sanctum só na rota `/user` | `routes/api.php` |
-| P1-2 | **Erros de validação (422) viram Alert genérico** — os campos do formulário não são preenchidos com os erros do servidor | `NotaFiscalCreateScreen` / `EditScreen` |
-| P1-3 | **Itens da nota não existem no app** — backend aceita `produtos[]`, o form não envia; `valor_total` não é conferido com a soma dos itens | `toFormData.ts` |
-| P1-4 | **Sem testes automatizados** (backend só `ExampleTest`; app nenhum) | `tests/` |
-| P1-5 | **`README` do backend inexistente** — o README raiz manda "ver o README de cada pasta" | raiz do repositório |
-| P1-6 | **Sem tratamento de erro por campo nem de timeout offline** no envio de imagem (10 s fixos) | `services/api.ts` |
+| P1-1 | **API totalmente aberta** — agora todos os `apiResource` estão no grupo `auth:sanctum` (login/logout + 8 testes de auth) | ✅ **concluído** |
+| P1-2 | **Erros de validação (422) viram Alert genérico** — `extractValidationErrors()` mapeia para `setError()` campo a campo | ✅ **concluído** |
+| P1-3 | **Itens da nota não existem no app** — `useFieldArray` + chips de produto + soma dos itens no formulário | ✅ **concluído** |
+| P1-4 | **Sem testes automatizados** — 25 PHPUnit + 23 Vitest + 14 de integração (ver `TESTES.md`) | ✅ **concluído** |
+| P1-5 | **`README` do backend inexistente** — criado `TPNotafiscalAPI/README.md` | ✅ **concluído** |
+| P1-6 | **Sem tratamento de timeout offline** (10 s fixos) | ⏳ pendente |
 
 ### 🟡 P2 — melhorias de maturidade
 
-| # | Problema |
-|---|---|
-| P2-1 | Validação no backend inline no controller (sem `FormRequest`) |
-| P2-2 | Sem ESLint/Prettier no app e sem CI (o Pint do Laravel existe mas não é executado em pipeline) |
-| P2-3 | Sem paginação/infinite scroll na UI (relacionado ao P0-1) |
-| P2-4 | `valor_total` aceita valor divergente da soma dos itens (sem regra de negócio) |
-| P2-5 | Nome "NFSe" remete a Nota Fiscal de **Serviços** Eletrônica, mas o modelo é de **produtos** — convém alinhar o texto apresentado |
-| P2-6 | README raiz com campo de integrantes incompleto ("Moises ...") |
-| P2-7 | Sem identificadores Android/iOS (`android.package`/`ios.bundleIdentifier`) no `app.json` — necessário para build |
+| # | Problema | Status |
+|---|---|---|
+| P2-1 | Validação no backend inline no controller (sem `FormRequest`) | ⏳ pendente |
+| P2-2 | Sem ESLint/Prettier no app e sem CI | ⏳ pendente |
+| P2-3 | Sem paginação na UI — agora `useInfiniteQuery` + "Carregar mais" | ✅ **concluído** |
+| P2-4 | `valor_total` aceita valor divergente da soma dos itens (sem regra de negócio) — hoje só **exibe** a soma | ⏳ pendente |
+| P2-5 | Nome "NFSe" remete a Nota Fiscal de **Serviços** Eletrônica, mas o modelo é de **produtos** — convém alinhar o texto apresentado | ⏳ pendente |
+| P2-6 | README raiz com campo de integrantes incompleto ("Moises ...") | ⏳ pendente (grupo) |
+| P2-7 | Sem identificadores Android/iOS no `app.json` — necessário para build | ⏳ pendente |
 
 ---
 
 ## 4. Plano de melhorias (roadmap sugerido)
 
-### Fase A — Estabilizar (antes da apresentação, 1–2 dias)
+### Fase A — Estabilizar (antes da apresentação, 1–2 dias) — ✅ CONCLUÍDA
 
-1. **P0-1:** buscar todas as páginas no hook (`?per_page=100` ou paginação
-   incremental com `useInfiniteQuery`).
-2. **P0-2:** rodar `php artisan storage:link`, documentar `APP_URL` com o IP da
-   LAN no `.env.example` e comentar no README.
-3. **P0-3:** adicionar `launchCameraAsync` + permissão `cameraPermission` no
-   `app.json` (botões "Câmera" e "Galeria").
-4. **P1-5:** criar `TPNotafiscalAPI/README.md` (setup, rotas, seed, storage).
-5. **P2-6:** completar os integrantes no README raiz.
+1. **P0-1:** ✅ paginação incremental com `useInfiniteQuery` + "Carregar mais".
+2. **P0-2:** ✅ `resolveMediaUrl()` no app + documentação de `storage:link`.
+3. **P0-3:** ✅ `launchCameraAsync` + permissão de câmera no `app.json`.
+4. **P1-5:** ✅ `TPNotafiscalAPI/README.md` criado.
+5. **P2-6:** ⏳ completar os integrantes no README raiz (ação do grupo).
 
-### Fase B — Reconhecimento (módulo central, 1 semana)
+### Fase B — Reconhecimento (módulo central, 1 semana) — ⏳ PRÓXIMA
 
 1. Endpoint `POST /api/notas-fiscais/reconhecer` (aceita a foto, devolve
    `numero`, `dt_emissao`, `valor_total`, `cnpj_fornecedor`, `itens[]` com
@@ -127,15 +137,15 @@ principal.
    pré-preenchidos → usuário corrige → salva (fluxo "assistido", nunca
    automático).
 
-### Fase C — Endurecer (pós-apresentação)
+### Fase C — Endurecer (pós-apresentação) — ✅ CONCLUÍDA (itens 1–4)
 
-1. **P1-1:** autenticação Sanctum (login + token no axios interceptor).
-2. **P1-2:** mapear erro 422 do Laravel para `setError()` do react-hook-form.
-3. **P1-3:** formulário de itens (produto, quantidade, preço) + soma
-   automática do `valor_total`.
-4. **P1-4:** testes feature do Laravel (CRUD + upload) e testes dos hooks com
-   Vitest.
-5. **P2-1/P2-2:** `FormRequest`, ESLint/Prettier e CI (GitHub Actions).
+1. **P1-1:** ✅ autenticação Sanctum (login + token no axios interceptor).
+2. **P1-2:** ✅ erro 422 do Laravel mapeado para `setError()` do RHF.
+3. **P1-3:** ✅ formulário de itens (produto, quantidade, preço) + soma
+   exibida.
+4. **P1-4:** ✅ testes feature do Laravel (25) + testes de unidade do app (23)
+   + integração (14).
+5. **P2-1/P2-2:** ⏳ `FormRequest`, ESLint/Prettier e CI (GitHub Actions).
 
 ---
 
@@ -145,9 +155,9 @@ principal.
 |---|---|---|
 | Arquitetura | 🟢 boa | "Duas camadas bem separadas, padrão REST + feature-based." |
 | Modelo de dados | 🟢 bom | "4 tabelas, relacionamentos N:N e integridade referencial." |
-| Validação | 🟢 boa | "Dupla validação: zod no app, Laravel no servidor." |
+| Validação | 🟢 boa | "Dupla validação: zod no app, Laravel no servidor, erros por campo." |
 | UI/UX | 🟢 boa | "Estados completos, tema consistente, delete em modal." |
-| Upload de foto | 🟡 parcial | "Funciona, mas falta câmera e configuração de URL." |
+| Upload de foto | 🟢 bom | "Câmera e galeria, URL corrigida para o dispositivo, troca com limpeza da antiga." |
+| Autenticação | 🟢 boa | "Sanctum + token no SecureStore + guarda de rotas + 401 automático." |
+| Testes | 🟢 boa | "62 verificações automatizadas (25 backend + 23 app + 14 integração)." |
 | Reconhecimento | 🔴 ausente | "É o próximo módulo — opções de OCR já mapeadas." |
-| Segurança | 🔴 ausente | "API aberta; Sanctum instalado, falta ativar." |
-| Testes | 🔴 ausente | "Só exemplos padrão; entra no roadmap." |

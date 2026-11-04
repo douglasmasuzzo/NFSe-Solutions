@@ -1,12 +1,30 @@
 import React from 'react';
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
 import { router } from 'expo-router';
-import { useNotasFiscais } from '../hooks/useNotasFiscais';
+import { flattenNotas, useNotasFiscais } from '../hooks/useNotasFiscais';
 import { NotaFiscalCard } from '../components/NotaFiscalCard';
 import { Colors, Radius, Spacing } from '@/constants/Theme';
 
 export function NotaFiscalListScreen() {
-  const { data: notasFiscais, isLoading, isError, refetch, isRefetching } = useNotasFiscais();
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    isRefetching,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useNotasFiscais();
+
+  const notasFiscais = flattenNotas(data);
 
   if (isLoading) {
     return (
@@ -39,6 +57,21 @@ export function NotaFiscalListScreen() {
           <View style={styles.centered}>
             <Text style={styles.emptyText}>Nenhuma nota fiscal cadastrada ainda.</Text>
           </View>
+        }
+        ListFooterComponent={
+          hasNextPage ? (
+            <TouchableOpacity
+              style={styles.loadMoreButton}
+              onPress={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+            >
+              {isFetchingNextPage ? (
+                <ActivityIndicator color={Colors.primary} />
+              ) : (
+                <Text style={styles.loadMoreText}>Carregar mais notas</Text>
+              )}
+            </TouchableOpacity>
+          ) : null
         }
         renderItem={({ item }) => <NotaFiscalCard notaFiscal={item} />}
       />
@@ -84,6 +117,20 @@ const styles = StyleSheet.create({
   retryButtonText: {
     color: '#fff',
     fontWeight: '600',
+  },
+  loadMoreButton: {
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    borderRadius: Radius.md,
+    paddingVertical: Spacing.sm + 4,
+    alignItems: 'center',
+    marginTop: Spacing.sm,
+    backgroundColor: Colors.surface,
+  },
+  loadMoreText: {
+    color: Colors.primary,
+    fontWeight: '700',
+    fontSize: 14,
   },
   fab: {
     position: 'absolute',

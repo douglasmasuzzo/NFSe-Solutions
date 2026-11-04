@@ -4,6 +4,9 @@ import { NotaFiscalFormValues } from '../types/NotaFiscalSchema';
  * Monta o FormData multipart enviado para a API. A foto é opcional: quando
  * `imageUri` não é informado (ex.: edição sem trocar a imagem), o campo
  * simplesmente não é anexado e o backend mantém a imagem já existente.
+ *
+ * Os itens da nota são anexados no formato `produtos[0][produto_id]`, que o
+ * PHP interpreta como um array associativo (produtos[] de objetos).
  */
 export function toFormData(values: NotaFiscalFormValues, imageUri?: string | null): FormData {
   const form = new FormData();
@@ -17,6 +20,12 @@ export function toFormData(values: NotaFiscalFormValues, imageUri?: string | nul
   if (values.observacoes) {
     form.append('observacoes', values.observacoes);
   }
+
+  (values.produtos ?? []).forEach((item, index) => {
+    form.append(`produtos[${index}][produto_id]`, String(item.produto_id));
+    form.append(`produtos[${index}][quantidade]`, String(item.quantidade));
+    form.append(`produtos[${index}][preco_compra]`, String(item.preco_compra));
+  });
 
   if (imageUri) {
     const fileName = imageUri.split('/').pop() ?? 'nota.jpg';

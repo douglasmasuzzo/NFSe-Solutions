@@ -62,26 +62,26 @@ class NotaFController extends Controller
         return response()->json($notaFiscal->load(['fornecedor', 'produtos']), 201);
     }
 
-    public function show(NotaF $notaF)
+    public function show(NotaF $nota)
     {
-        return response()->json($notaF->load(['fornecedor', 'produtos']));
+        return response()->json($nota->load(['fornecedor', 'produtos']));
     }
 
-    public function update(Request $request, NotaF $notaF)
+    public function update(Request $request, NotaF $nota)
     {
         $data = $request->validate($this->rules(isUpdate: true));
 
         if ($request->hasFile('imagem_nf')) {
-            if ($notaF->imagem_nf) {
-                Storage::disk('public')->delete($notaF->imagem_nf);
+            if ($nota->imagem_nf) {
+                Storage::disk('public')->delete($nota->imagem_nf);
             }
             $data['imagem_nf'] = $request->file('imagem_nf')->store('notas-fiscais', 'public');
         }
 
-        $notaF->update(collect($data)->except('produtos')->toArray());
+        $nota->update(collect($data)->except('produtos')->toArray());
 
         if (array_key_exists('produtos', $data)) {
-            $notaF->produtos()->sync(
+            $nota->produtos()->sync(
                 collect($data['produtos'])->mapWithKeys(fn ($item) => [
                     $item['produto_id'] => [
                         'quantidade' => $item['quantidade'],
@@ -91,17 +91,17 @@ class NotaFController extends Controller
             );
         }
 
-        return response()->json($notaF->load(['fornecedor', 'produtos']));
+        return response()->json($nota->load(['fornecedor', 'produtos']));
     }
 
-    public function destroy(NotaF $notaF)
+    public function destroy(NotaF $nota)
     {
-        if ($notaF->imagem_nf) {
-            Storage::disk('public')->delete($notaF->imagem_nf);
+        if ($nota->imagem_nf) {
+            Storage::disk('public')->delete($nota->imagem_nf);
         }
 
-        $notaF->produtos()->detach();
-        $notaF->delete();
+        $nota->produtos()->detach();
+        $nota->delete();
 
         return response()->json(null, 204);
     }

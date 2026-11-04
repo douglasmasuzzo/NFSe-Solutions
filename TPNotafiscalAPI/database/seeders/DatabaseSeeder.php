@@ -8,6 +8,7 @@ use App\Models\Produto;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,10 +19,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Usuário de teste
+        // Usuário de teste para login na API (rota POST /api/login)
+        // Credenciais: test@example.com / password
+        // O cast 'hashed' do model criptografa a senha automaticamente.
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'password' => Hash::make('password'),
         ]);
 
         // ==========================================
