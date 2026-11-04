@@ -161,9 +161,6 @@ senha:  password
 
 ## Documentação
 
-- [`docs/APRESENTACAO.md`](docs/APRESENTACAO.md) — roteiro de apresentação com
-  diagramas (arquitetura, autenticação, modelo de dados, fluxo da foto) e
-  respostas prontas para perguntas.
 - [`docs/ANALISE_E_MELHORIAS.md`](docs/ANALISE_E_MELHORIAS.md) — análise da
   estrutura atual, problemas identificados e roadmap de melhorias.
 - [`docs/TESTES.md`](docs/TESTES.md) — seção de testes: cobertura dos 62
