@@ -39,6 +39,39 @@ Route::post('/login', function (Request $request) {
     ]);
 });
 
+// Cadastro de novo usuário: cria a conta (senha criptografada pelo cast
+// 'hashed' do model) e já devolve o token, logando o usuário na hora.
+Route::post('/register', function (Request $request) {
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+    ], [
+        'name.required' => 'Informe seu nome.',
+        'email.required' => 'Informe o e-mail.',
+        'email.email' => 'Use um e-mail válido.',
+        'email.unique' => 'Este e-mail já está cadastrado.',
+        'password.required' => 'Informe a senha.',
+        'password.min' => 'A senha deve ter pelo menos 8 caracteres.',
+        'password.confirmed' => 'A confirmação de senha não confere.',
+    ]);
+
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => $request->password,
+    ]);
+
+    return response()->json([
+        'token' => $user->createToken($request->email)->plainTextToken,
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+        ],
+    ], 201);
+});
+
 Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
     // Revoga somente o token usado nesta requisição
     $request->user()->currentAccessToken()->delete();

@@ -18,7 +18,8 @@ e-mail: test@example.com
 senha:  password
 ```
 
-(Criado pelo seeder: `php artisan db:seed` no backend.)
+(Criado pelo seeder: `php artisan db:seed` no backend. Também dá para
+**criar uma conta nova** pelo app, na tela "Criar conta".)
 
 ## Documentação
 
@@ -34,10 +35,10 @@ senha:  password
 ## Testes
 
 ```bash
-# Backend (25 testes)
+# Backend (30 testes)
 cd TPNotafiscalAPI && php artisan test
 
-# Frontend (23 testes + validação de tipos)
+# Frontend (31 testes + validação de tipos)
 cd NFSeApp && npm test && npm run typecheck
 ```
 

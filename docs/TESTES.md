@@ -10,19 +10,19 @@
 
 | Nível | Ferramenta | Onde roda | Comando | Status |
 |---|---|---|---|---|
-| Backend — testes de feature | PHPUnit (Laravel) | `TPNotafiscalAPI` | `php artisan test` | ✅ **25 testes, 25 passando** |
-| Frontend — testes de unidade | Vitest | `NFSeApp` | `npm test` | ✅ **23 testes, 23 passando** |
+| Backend — testes de feature | PHPUnit (Laravel) | `TPNotafiscalAPI` | `php artisan test` | ✅ **30 testes, 30 passando** |
+| Frontend — testes de unidade | Vitest | `NFSeApp` | `npm test` | ✅ **31 testes, 31 passando** |
 | Frontend — tipos | TypeScript | `NFSeApp` | `npm run typecheck` | ✅ **0 erros** |
-| Integração ponta a ponta | script cURL + servidor real | máquina local | ver §4 | ✅ **14/14** |
+| Integração ponta a ponta | script cURL + servidor real | máquina local | ver §4 | ✅ **17/17** |
 | Manual / demonstração | Checklist humano | celular + PC | ver §5 | 📋 checklist |
 
-**Total: 62 verificações automatizadas.**
+**Total: 78 verificações automatizadas.**
 
 ---
 
 ## 2. Testes do backend (PHPUnit) — `TPNotafiscalAPI/tests/Feature`
 
-### `AuthTest.php` — autenticação por token (8 testes)
+### `AuthTest.php` — autenticação por token (13 testes)
 - login devolve `token` + dados do usuário
 - login recusa **senha errada** e **e-mail inexistente** (422)
 - login valida campos obrigatórios (422 + `assertJsonValidationErrors`)
@@ -30,6 +30,11 @@
 - recursos da API **com token → 200**
 - rota `/api/user` devolve o usuário autenticado
 - `/api/logout` revoga o token (requisição seguinte → 401)
+- **cadastro** cria o usuário e devolve token (201) com senha **hash** no banco
+- **cadastro** permite logar logo em seguida (fluxo completo)
+- **cadastro** rejeita e-mail duplicado (422)
+- **cadastro** valida campos obrigatórios (422)
+- **cadastro** rejeita senha curta (< 8) e confirmação divergente (422)
 
 ### `NotaFiscalCrudTest.php` — CRUD principal (9 testes)
 - índice paginado com relacionamentos (`fornecedor`, `produtos`)
@@ -66,9 +71,10 @@ php artisan test --filter=AuthTest   # só autenticação
 | Arquivo | O que cobre | Testes |
 |---|---|---|
 | `services/mediaUrl.test.ts` | URL da foto reconstruída com o IP da API (bug do `localhost`) | 5 |
-| `features/notas-fiscais/types/NotaFiscalSchema.test.ts` | validação do formulário, itens, coerce e contrato da API | 9 |
+| `features/notas-fiscais/types/NotaFiscalSchema.test.ts` | validação do formulário, itens, coerce e contrato da API | 10 |
 | `features/notas-fiscais/utils/toFormData.test.ts` | montagem do multipart: campos, itens `produtos[i][campo]`, foto | 5 |
 | `features/notas-fiscais/utils/apiErrors.test.ts` | erros 422 do Laravel → mensagens por campo | 3 |
+| `features/auth/types/AuthSchema.test.ts` | login e **cadastro**: e-mail, senha mínima de 8, confirmação | 8 |
 
 > Por que **Vitest** e não emulador? Estes módulos são lógica pura (sem UI).
 > Rodar em Node mantém a execução instantânea (< 1 s) e sem emulador.
@@ -95,8 +101,9 @@ exatamente como o app vai usar a API:
 5. `POST` cria nota (com itens) → **201**
 6. `GET /{id}` → **200** · `PUT` → **200** e edição persiste · `DELETE` → **204** · `GET` após delete → **404**
 7. `POST /logout` → **200** e o token usado fica **401** em seguida
+8. `POST /register` cria conta nova → **201** · e-mail duplicado → **422** · login com a conta recém-criada → **200**
 
-Resultado da última execução: **14/14**.
+Resultado da última execução: **17/17**.
 
 ---
 
@@ -105,6 +112,8 @@ Resultado da última execução: **14/14**.
 Executar no **celular real** (Expo Go) com a API rodando no PC:
 
 - [ ] Login com senha errada mostra a mensagem de erro no campo
+- [ ] **"Criar conta"** abre o cadastro; criar conta nova entra no app **sem precisar logar**
+- [ ] Cadastro com e-mail já existente mostra o erro no campo do e-mail
 - [ ] Login correto entra na home exibindo **nome e e-mail** do usuário
 - [ ] Home → "Sair da conta" volta para o login e bloqueia as telas internas
 - [ ] Tentar acessar a lista deslogado redireciona para `/login`

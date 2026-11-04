@@ -4,7 +4,7 @@
 > Data da análise: 04/11/2026 — revisão direta do código-fonte do repositório.
 > **Atualização: itens P0-1, P0-2, P0-3, P1-1 a P1-5 e P2-3 concluídos**
 > (autenticação, câmera, paginação, URL de mídia, itens no formulário,
-> erros por campo e 62 testes automatizados — ver `TESTES.md`).
+> erros por campo e 78 testes automatizados — ver `TESTES.md`).
 
 ---
 
@@ -14,13 +14,13 @@
 
 | Camada | Arquivos | Situação |
 |---|---|---|
-| Rotas | `routes/api.php` (login/logout + 3 `apiResource` + `/user`) | ✅ funcional, ✅ **protegidas por `auth:sanctum`** |
+| Rotas | `routes/api.php` (login/register/logout + 3 `apiResource` + `/user`) | ✅ funcional, ✅ **protegidas por `auth:sanctum`** |
 | Controllers | `NotaF`, `Fornecedor`, `Produto` | ✅ CRUD completo, validação inline, upload e sync de itens |
 | Models | `NotaF`, `Fornecedor`, `Produto`, `User` | ✅ relacionamentos, accessor `imagem_nf_url` e `HasApiTokens` |
 | Migrations | 8 arquivos (users, cache, jobs, tokens, 4 de negócio) | ✅ modelo relacional íntegro (FK + cascade) |
 | Seeder | `DatabaseSeeder` | ✅ 3 fornecedores, 5 produtos, 5 notas + **usuário de teste** (`test@example.com`/`password`, senha bcrypt) |
 | Storage | `storage/app/public/` | ⚠️ exige `php artisan storage:link` (documentado no README) |
-| Testes | `tests/Feature/{AuthTest,NotaFiscalCrudTest,FornecedorProdutoTest}` | ✅ **25 testes, 25 passando** (PHPUnit + SQLite em memória) |
+| Testes | `tests/Feature/{AuthTest,NotaFiscalCrudTest,FornecedorProdutoTest}` | ✅ **30 testes, 30 passando** (PHPUnit + SQLite em memória) |
 | README | `TPNotafiscalAPI/README.md` | ✅ criado (setup, rotas, login, testes) |
 
 **Endpoints operacionais:** 18 rotas (3 de autenticação + 15 REST) com
@@ -40,7 +40,7 @@ rotas de recurso**.
 | Camada | Arquivos | Situação |
 |---|---|---|
 | Rotas (`app/`) | `_layout`, `login`, `index`, `notas-fiscais/{index,new,[id]/edit,[id]/delete}` | ✅ rotas finas, modal no delete, **`RequireAuth` em toda rota protegida** |
-| Autenticação | `features/auth/` (AuthContext, useLogin/useLogout, LoginScreen, tokenStorage) | ✅ token no `expo-secure-store` + interceptor axios + 401 automático |
+| Autenticação | `features/auth/` (AuthContext, useLogin/useRegister/useLogout, LoginScreen, RegisterScreen, tokenStorage) | ✅ token no `expo-secure-store` + interceptor axios + 401 automático |
 | Telas (`screens/`) | List, Create, Edit, Delete | ✅ loading/erro/vazio/retry tratados |
 | Hooks (7+1) | React Query (notas, fornecedores, produtos, login, logout) | ✅ `useInfiniteQuery` na lista + invalidação de cache |
 | Componentes | `NotaFiscalForm` (compartilhado), `NotaFiscalCard` | ✅ DRY entre criação e edição |
@@ -48,7 +48,7 @@ rotas de recurso**.
 | Utilitários | `toFormData.ts`, `apiErrors.ts`, `mediaUrl.ts` | ✅ multipart, erros 422 por campo, URL da foto corrigida |
 | Infra | `services/api.ts` (axios, Bearer + 401, timeout 10 s), `constants/Theme.ts` | ✅ |
 | Imagem | `expo-image-picker` (**câmera + galeria**, quality 0.7, edição 4:3) | ✅ permissão de câmera no `app.json` |
-| Testes/tipos | Vitest (`npm test`), tsc (`npm run typecheck`) | ✅ **23 testes passando, 0 erros de tipo** |
+| Testes/tipos | Vitest (`npm test`), tsc (`npm run typecheck`) | ✅ **31 testes passando, 0 erros de tipo** |
 
 ### 1.3 Fluxo central (foto → dado persistido)
 
@@ -92,7 +92,7 @@ imagem**. Hoje o projeto entrega:
 
 | # | Problema | Status |
 |---|---|---|
-| P1-1 | **API totalmente aberta** — agora todos os `apiResource` estão no grupo `auth:sanctum` (login/logout + 8 testes de auth) | ✅ **concluído** |
+| P1-1 | **API totalmente aberta** — agora todos os `apiResource` estão no grupo `auth:sanctum` (login/register/logout + 13 testes de auth) | ✅ **concluído** |
 | P1-2 | **Erros de validação (422) viram Alert genérico** — `extractValidationErrors()` mapeia para `setError()` campo a campo | ✅ **concluído** |
 | P1-3 | **Itens da nota não existem no app** — `useFieldArray` + chips de produto + soma dos itens no formulário | ✅ **concluído** |
 | P1-4 | **Sem testes automatizados** — 25 PHPUnit + 23 Vitest + 14 de integração (ver `TESTES.md`) | ✅ **concluído** |
@@ -159,5 +159,5 @@ imagem**. Hoje o projeto entrega:
 | UI/UX | 🟢 boa | "Estados completos, tema consistente, delete em modal." |
 | Upload de foto | 🟢 bom | "Câmera e galeria, URL corrigida para o dispositivo, troca com limpeza da antiga." |
 | Autenticação | 🟢 boa | "Sanctum + token no SecureStore + guarda de rotas + 401 automático." |
-| Testes | 🟢 boa | "62 verificações automatizadas (25 backend + 23 app + 14 integração)." |
+| Testes | 🟢 boa | "78 verificações automatizadas (30 backend + 31 app + 17 integração)." |
 | Reconhecimento | 🔴 ausente | "É o próximo módulo — opções de OCR já mapeadas." |

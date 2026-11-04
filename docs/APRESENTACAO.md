@@ -156,7 +156,7 @@ TPNotafiscalAPI/
 ├── database/migrations/            → 8 migrações (estrutura do banco)
 ├── database/seeders/               → dados de exemplo + usuário de teste
 ├── database/factories/             → fábricas para os testes automatizados
-├── tests/Feature/                  → 25 testes automatizados (PHPUnit)
+├── tests/Feature/                  → 30 testes automatizados (PHPUnit)
 └── storage/app/public/             → fotos enviadas
 ```
 
@@ -165,6 +165,7 @@ TPNotafiscalAPI/
 | Método | Rota | O que faz |
 |---|---|---|
 | POST | `/api/login` | autentica e devolve **token** (Sanctum) |
+| POST | `/api/register` | **cria conta** e já devolve token (entra logado) |
 | POST | `/api/logout` | revoga o token usado |
 | GET | `/api/user` | dados do usuário autenticado |
 | GET | `/api/notas-fiscais` | lista (paginação de 15 em 15) |
@@ -307,8 +308,10 @@ sequenceDiagram
 > atrás do middleware `auth:sanctum` — **sem token, a resposta é 401**. Se o
 > token for revogado, o próprio app detecta o 401, limpa a sessão e devolve o
 > usuário para o login. Um `RequireAuth` nas rotas garante que ninguém acesse
-> as telas internas deslogado, e o usuário de teste vem no seeder com a senha
-> já criptografada (bcrypt)."
+> as telas internas deslogado. Dá para **criar conta** pela tela de cadastro —
+> o backend valida os campos, grava a senha já **criptografada (bcrypt)** e já
+> devolve o token, então o usuário novo entra no app direto. Um usuário de
+> teste vem pronto no seeder."
 
 **Possíveis perguntas:**
 
@@ -328,22 +331,23 @@ sequenceDiagram
 
 | Nível | Ferramenta | Comando | Resultado |
 |---|---|---|---|
-| Backend (API) | PHPUnit | `php artisan test` | ✅ **25/25** |
-| Frontend (lógica) | Vitest | `npm test` | ✅ **23/23** |
+| Backend (API) | PHPUnit | `php artisan test` | ✅ **30/30** |
+| Frontend (lógica) | Vitest | `npm test` | ✅ **31/31** |
 | Tipos (TypeScript) | tsc | `npm run typecheck` | ✅ **0 erros** |
-| Integração (API real) | script cURL | ver `docs/TESTES.md` | ✅ **14/14** |
+| Integração (API real) | script cURL | ver `docs/TESTES.md` | ✅ **17/17** |
 
 **O que falar:**
 
-> "São **62 verificações automatizadas**. Os testes do backend cobrem a
-> autenticação (login certo/errado, bloqueio sem token, logout que revoga o
-> token), o CRUD completo da nota (inclusive **upload de foto** e a
-> **substituição da foto antiga** na edição) e os recursos auxiliares. No app,
-> os testes cobrem a lógica pura: os schemas de validação, a montagem do
-> `FormData`, a correção da URL das fotos e o mapeamento dos erros do servidor
-> para os campos. Tudo roda em **SQLite em memória**, sem afetar o banco real,
-> e o teste de integração percorre o fluxo inteiro contra o servidor rodando —
-> login, CRUD e logout, 14 verificações."
+> "São **78 verificações automatizadas**. Os testes do backend cobrem a
+> autenticação (login certo/errado, **cadastro de conta nova**, bloqueio sem
+> token, logout que revoga o token), o CRUD completo da nota (inclusive
+> **upload de foto** e a **substituição da foto antiga** na edição) e os
+> recursos auxiliares. No app, os testes cobrem a lógica pura: os schemas de
+> validação (login e cadastro), a montagem do `FormData`, a correção da URL
+> das fotos e o mapeamento dos erros do servidor para os campos. Tudo roda em
+> **SQLite em memória**, sem afetar o banco real, e o teste de integração
+> percorre o fluxo inteiro contra o servidor rodando — cadastro, login, CRUD e
+> logout, 17 verificações."
 
 **Possíveis perguntas:**
 
@@ -371,8 +375,8 @@ sequenceDiagram
 - **Autenticação real:** token Sanctum em todas as rotas da API, salvo no
   `expo-secure-store` do celular, com guarda de rotas (`RequireAuth`) e
   devolução automática ao login em caso de 401.
-- **Testes automatizados:** 25 testes de feature no Laravel (PHPUnit) + 23
-  testes de unidade no app (Vitest) + 14 verificações de integração contra o
+- **Testes automatizados:** 30 testes de feature no Laravel (PHPUnit) + 31
+  testes de unidade no app (Vitest) + 17 verificações de integração contra o
   servidor real. Documentados em `docs/TESTES.md`.
 - **Delete em tela própria de confirmação**, com modal — não é feito "de
   supetão" na lista.
@@ -438,11 +442,11 @@ apenas **pré-preenche o formulário** — o usuário confirma antes de salvar
 **O que falar:**
 
 > "Hoje o projeto tem um **CRUD completo e funcional** nas duas camadas,
-> com autenticação por token, câmera para fotografar a nota, itens de produto
-> no formulário, validação em dupla, upload de foto, **62 verificações
-> automatizadas** e organização em padrão de mercado. A etapa seguinte é
-> transformar essa foto em **informação**, usando OCR para pré-preencher o
-> formulário — que é o objetivo final do trabalho."
+> com autenticação por token e **cadastro de conta**, câmera para fotografar a
+> nota, itens de produto no formulário, validação em dupla, upload de foto,
+> **78 verificações automatizadas** e organização em padrão de mercado. A
+> etapa seguinte é transformar essa foto em **informação**, usando OCR para
+> pré-preencher o formulário — que é o objetivo final do trabalho."
 
 ---
 
@@ -456,6 +460,7 @@ apenas **pré-preenche o formulário** — o usuário confirma antes de salvar
 | *Como a validação funciona?* | Duas camadas: `zod` no app (UX) e `$request->validate()` no Laravel (segurança). Erros do servidor aparecem campo a campo no formulário. |
 | *Por que tiveram que usar `POST + _method=PUT`?* | Porque o PHP não processa `multipart/form-data` em requisições `PUT`; o Laravel resolve com *method spoofing*. |
 | *O app está protegido?* | Sim: login com token Sanctum (material da aula), token guardado no armazenamento seguro do celular, todas as rotas da API exigem `Authorization: Bearer` e o 401 devolve o usuário para o login. |
-| *Como vocês sabem que funciona?* | 62 verificações automatizadas: 25 testes no backend, 23 no app, 14 de integração contra o servidor real + checklist manual das telas (`docs/TESTES.md`). |
+| *Como vocês sabem que funciona?* | 78 verificações automatizadas: 30 testes no backend, 31 no app, 17 de integração contra o servidor real + checklist manual das telas (`docs/TESTES.md`). |
+| *Dá para criar conta nova?* | Sim: tela "Criar conta" → `POST /api/register` valida os campos, grava a senha criptografada (bcrypt) e já devolve o token — o usuário entra logado na hora. E-mail duplicado é recusado. |
 | *O reconhecimento já funciona?* | Ainda não: hoje a foto é anexada (câmera ou galeria) e os campos digitados. O OCR é o próximo módulo, com opções já mapeadas (Slide 11). |
 | *Dá para rodar o projeto?* | Sim: backend com `composer install` + `php artisan migrate --seed` + `php artisan serve`; app com `npm install` e `npx expo start` apontando `EXPO_PUBLIC_API_URL` para o IP da máquina. Login: `test@example.com` / `password`. |

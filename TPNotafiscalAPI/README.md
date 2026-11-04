@@ -1,7 +1,7 @@
 # TPNotafiscalAPI
 
 Backend do NFSe Solutions — API REST em **Laravel 13** (PHP ≥ 8.3) com
-autenticação por token (**Laravel Sanctum**) e **25 testes automatizados**.
+autenticação por token (**Laravel Sanctum**) e **30 testes automatizados**.
 
 ## Requisitos
 
@@ -45,6 +45,10 @@ Todas as rotas de recurso exigem o cabeçalho `Authorization: Bearer <token>`:
 
 1. `POST /api/login` com `{ "email": "...", "password": "..." }` →
    devolve `{ "token": "...", "user": { ... } }`
+   - Ou `POST /api/register` com `{ "name", "email", "password",
+     "password_confirmation" }` para **criar uma conta nova** (a senha é
+     validada com mínimo de 8 caracteres e gravada criptografada; a resposta
+     é a mesma do login, então o usuário já entra logado)
 2. Use o token em todas as demais requisições
 3. `POST /api/logout` revoga o token atual
 
@@ -55,6 +59,7 @@ Sem token (ou com token revogado), a API responde **401**.
 | Método | Rota | Descrição |
 |---|---|---|
 | POST | `/api/login` | autentica e emite token |
+| POST | `/api/register` | cria conta nova e emite token (senha bcrypt) |
 | POST | `/api/logout` | revoga o token usado |
 | GET | `/api/user` | dados do usuário autenticado |
 | GET | `/api/notas-fiscais` | lista paginada (aceita `?page=&fornecedor_id=`) |
@@ -76,8 +81,8 @@ Lista completa: `php artisan route:list --path=api`
 ## Testes
 
 ```bash
-php artisan test                          # tudo (25 testes)
-php artisan test --filter=AuthTest        # só autenticação (8)
+php artisan test                          # tudo (30 testes)
+php artisan test --filter=AuthTest        # autenticação + cadastro (13)
 php artisan test --filter=NotaFiscalCrudTest   # CRUD da nota (9)
 php artisan test --filter=FornecedorProdutoTest # recursos auxiliares (8)
 ```
@@ -95,6 +100,6 @@ app/Models/                 → NotaF, Fornecedor, Produto, User (HasApiTokens)
 database/migrations/        → 8 migrações
 database/seeders/           → dados de exemplo + usuário de teste
 database/factories/         → fábricas usadas nos testes
-tests/Feature/              → 25 testes (PHPUnit)
+tests/Feature/              → 30 testes (PHPUnit)
 storage/app/public/         → fotos das notas (via storage:link)
 ```

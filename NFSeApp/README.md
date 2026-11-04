@@ -18,8 +18,8 @@ Laravel em `../TPNotafiscalAPI`.
 features/auth/        → autenticação completa
   context/AuthContext.tsx    → sessão do usuário (restaura token salvo)
   components/RequireAuth.tsx → guarda de rotas (sem login → /login)
-  hooks/useLogin.ts, useLogout.ts
-  screens/LoginScreen.tsx
+  hooks/useLogin.ts, useRegister.ts, useLogout.ts
+  screens/LoginScreen.tsx, RegisterScreen.tsx
   utils/tokenStorage.ts      → token no expo-secure-store (criptografado)
 features/notas-fiscais/
   types/     → contratos Zod (entrada do form x saída da API)
@@ -43,15 +43,22 @@ A API Laravel precisa estar rodando (`php artisan serve`) e acessível pelo
 IP configurado em `EXPO_PUBLIC_API_URL` — "localhost" não funciona a partir
 de um dispositivo físico ou emulador.
 
-## Login
+## Login e cadastro
 
-A tela inicial pede autenticação. Use o usuário criado pelo seeder do
-backend (`php artisan db:seed`):
+A tela inicial pede autenticação. Duas opções:
 
-```
-e-mail: test@example.com
-senha:  password
-```
+- **Entrar** com o usuário criado pelo seeder do backend
+  (`php artisan db:seed`):
+
+  ```
+  e-mail: test@example.com
+  senha:  password
+  ```
+
+- **Criar conta** (tela de cadastro): valida nome, e-mail, senha (mínimo de 8
+  caracteres) e confirmação; o backend grava a senha criptografada e já
+  devolve o token — o usuário novo entra no app sem precisar logar. E-mail já
+  cadastrado é recusado com a mensagem no campo.
 
 O token fica no `expo-secure-store` (armazenamento criptografado do celular);
 se a API responder 401, o app limpa a sessão e volta para o login sozinho.
@@ -65,7 +72,7 @@ declaradas no `app.json` (`cameraPermission` / `photosPermission`).
 ## Testes
 
 ```bash
-npm test              # 23 testes de unidade (Vitest): schemas, FormData, URLs, erros
+npm test              # 31 testes de unidade (Vitest): schemas, FormData, URLs, erros
 npm run typecheck     # validação de tipos (tsc --noEmit)
 ```
 

@@ -9,7 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { Redirect } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoginSchema, LoginValues } from '../types/AuthSchema';
@@ -119,6 +119,10 @@ export function LoginScreen() {
         <Text style={styles.hint}>
           Acesso de teste: test@example.com / password
         </Text>
+
+        <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/register')}>
+          <Text style={styles.linkText}>Ainda não tem conta? Criar conta</Text>
+        </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
@@ -198,5 +202,14 @@ const styles = StyleSheet.create({
     color: Colors.placeholder,
     textAlign: 'center',
     marginTop: Spacing.md,
+  },
+  linkButton: {
+    marginTop: Spacing.sm,
+    alignItems: 'center',
+  },
+  linkText: {
+    color: Colors.primary,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

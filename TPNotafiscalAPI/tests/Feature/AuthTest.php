@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -113,5 +114,92 @@ class AuthTest extends TestCase
 
         // Token revogado não pode mais acessar a API
         $this->withToken($token)->getJson('/api/notas-fiscais')->assertStatus(401);
+    }
+
+    // -------------------------------------------------------------------------
+    // Cadastro (POST /api/register)
+    // -------------------------------------------------------------------------
+
+    public function test_register_creates_user_and_returns_token(): void
+    {
+        $response = $this->postJson('/api/register', [
+            'name' => 'Aluno Novo',
+            'email' => 'novo@fatec.pg',
+            'password' => 'senha1234',
+            'password_confirmation' => 'senha1234',
+        ]);
+
+        $response
+            ->assertStatus(201)
+            ->assertJsonStructure(['token', 'user' => ['id', 'name', 'email']])
+            ->assertJsonPath('user.email', 'novo@fatec.pg');
+
+        $this->assertDatabaseHas('users', ['email' => 'novo@fatec.pg']);
+
+        // A senha gravada é o HASH, nunca o texto puro
+        $user = User::where('email', 'novo@fatec.pg')->first();
+        $this->assertTrue(Hash::check('senha1234', $user->password));
+        $this->assertNotSame('senha1234', $user->password);
+    }
+
+    public function test_register_allows_login_right_after_creating_account(): void
+    {
+        $this->postJson('/api/register', [
+            'name' => 'Fluxo Completo',
+            'email' => 'fluxo@fatec.pg',
+            'password' => 'senha1234',
+            'password_confirmation' => 'senha1234',
+        ])->assertStatus(201);
+
+        $this->postJson('/api/login', [
+            'email' => 'fluxo@fatec.pg',
+            'password' => 'senha1234',
+        ])
+            ->assertOk()
+            ->assertJsonStructure(['token', 'user']);
+    }
+
+    public function test_register_rejects_duplicated_email(): void
+    {
+        $this->makeUser(); // aluno@fatec.pg já existe
+
+        $this->postJson('/api/register', [
+            'name' => 'Outro Aluno',
+            'email' => 'aluno@fatec.pg',
+            'password' => 'senha1234',
+            'password_confirmation' => 'senha1234',
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('email');
+    }
+
+    public function test_register_validates_required_fields(): void
+    {
+        $this->postJson('/api/register', [])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['name', 'email', 'password']);
+    }
+
+    public function test_register_rejects_short_password_and_mismatched_confirmation(): void
+    {
+        // Senha curta (menos de 8 caracteres)
+        $this->postJson('/api/register', [
+            'name' => 'Curta',
+            'email' => 'curta@fatec.pg',
+            'password' => '1234',
+            'password_confirmation' => '1234',
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('password');
+
+        // Confirmação diferente da senha
+        $this->postJson('/api/register', [
+            'name' => 'Diferente',
+            'email' => 'diferente@fatec.pg',
+            'password' => 'senha1234',
+            'password_confirmation' => 'senha9999',
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('password');
     }
 }

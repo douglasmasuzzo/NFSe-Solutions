@@ -20,6 +20,7 @@ export default function RootLayout() {
           }}
         >
           <Stack.Screen name="login" options={{ title: 'Entrar' }} />
+          <Stack.Screen name="register" options={{ title: 'Criar conta' }} />
           <Stack.Screen name="index" options={{ title: 'NFSe Solutions' }} />
           <Stack.Screen name="notas-fiscais/index" options={{ title: 'Notas Fiscais' }} />
           <Stack.Screen name="notas-fiscais/new" options={{ title: 'Nova Nota Fiscal' }} />
