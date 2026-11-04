@@ -3,6 +3,7 @@ node_modules/
 dist/
 web-build/
 expo-env.d.ts
+.env
 .env*.local
 *.tsbuildinfo
 /ios

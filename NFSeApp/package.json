@@ -17,7 +17,7 @@
     "axios": "^1.20.0",
     "expo": "~57.0.21",
     "expo-constants": "~57.0.17",
-    "expo-image-picker": "~17.0.8",
+    "expo-image-picker": "~57.0.20",
     "expo-router": "~57.0.20",
     "expo-secure-store": "~57.0.4",
     "expo-status-bar": "~57.0.1",
