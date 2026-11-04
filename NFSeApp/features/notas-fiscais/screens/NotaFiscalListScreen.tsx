@@ -71,7 +71,7 @@ export function NotaFiscalListScreen() {
                 <Text style={styles.loadMoreText}>Carregar mais notas</Text>
               )}
             </TouchableOpacity>
-          ) : null
+          ) : undefined
         }
         renderItem={({ item }) => <NotaFiscalCard notaFiscal={item} />}
       />

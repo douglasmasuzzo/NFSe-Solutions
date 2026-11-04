@@ -106,7 +106,7 @@ export function LoginScreen() {
 
         <TouchableOpacity
           style={[styles.button, isPending && styles.buttonDisabled]}
-          onPress={handleSubmit(onSubmit)}
+          onPress={() => handleSubmit(onSubmit)()}
           disabled={isPending}
         >
           {isPending ? (

@@ -367,7 +367,7 @@ export function NotaFiscalForm({
 
       <TouchableOpacity
         style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
-        onPress={handleSubmit(handleFormSubmit)}
+        onPress={() => handleSubmit(handleFormSubmit)()}
         disabled={isSubmitting}
       >
         {isSubmitting ? (
