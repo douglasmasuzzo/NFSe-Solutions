@@ -19,6 +19,6 @@ Veja o README de cada pasta para instruções de setup.
 
 ## Integrantes
 _(preencher com os nomes do grupo)_
-- _Moises ... (Representante)_
+- _Moises Santana (Representante)_
 - _Tiago Felipe (Colaborador Auxiliar)_
 - _Douglas Masuzzo (Colaborador Auxiliar)_
