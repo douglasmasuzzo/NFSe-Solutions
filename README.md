@@ -18,7 +18,7 @@ completo para rodar o projeto do zero está logo abaixo.
 
 ### Pré-requisitos
 
-- **PHP 8.3+** (extensões `sqlite3`, `mbstring`, `openssl`, `fileinfo`) e **Composer**
+- **PHP 8.3+** (extensões `pdo_sqlite`, `sqlite3`, `mbstring`, `openssl`, `fileinfo`, `dom`, `xml`) e **Composer**
 - **Node.js** (versão LTS) e **npm**
 - App **Expo Go** no celular (versão compatível com o Expo SDK 58) ou um emulador Android/iOS
 - Computador e celular na **mesma rede Wi-Fi** (ou use o GitHub Codespaces — veja a variante mais abaixo)
@@ -138,7 +138,8 @@ próprio Expo Go; iOS: pela câmera do celular). Para emulador, use `a` (Android
 | Sintoma | Causa provável | Solução |
 |---|---|---|
 | `composer install` reclama que o pacote "requires php >=8.4.1" | `composer.lock` gerado com PHP mais novo que o instalado | Rodar `composer update` e depois `composer install` |
-| `could not find driver` ao migrar | extensão SQLite do PHP desativada | Habilitar `pdo_sqlite` / `sqlite3` no `php.ini` |
+| `composer install` reclama que `ext-dom` ou `ext-xml` está ausente | Extensões XML do PHP não instaladas ou desativadas | Instalar/habilitar as extensões XML correspondentes à versão do PHP (no Ubuntu/Debian, por exemplo: `sudo apt install php8.4-xml`) |
+| `could not find driver` ao migrar | Extensões SQLite do PHP não instaladas ou desativadas | Instalar/habilitar `pdo_sqlite` / `sqlite3` para a versão do PHP (no Ubuntu/Debian, por exemplo: `sudo apt install php8.4-sqlite3`) |
 | App mostra "Network Error" / timeout | API sem `--host=0.0.0.0`, IP errado no `.env`, firewall ou celular em outra rede | Conferir os passos 1, 3 e 4; liberar a porta 8000 no firewall |
 | Mudei o `.env` do app e nada mudou | o Expo lê as variáveis só ao iniciar | Parar e rodar `npx expo start -c` |
 | Fotos das notas não abrem | faltou o `storage:link` | `php artisan storage:link` |

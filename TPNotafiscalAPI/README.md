@@ -5,7 +5,7 @@ autenticação por token (**Laravel Sanctum**) e **30 testes automatizados**.
 
 ## Requisitos
 
-- PHP 8.3+ com extensões: `sqlite3`, `mbstring`, `openssl`, `fileinfo`
+- PHP 8.3+ com extensões: `pdo_sqlite`, `sqlite3`, `mbstring`, `openssl`, `fileinfo`, `dom`, `xml`
 - Composer
 - (opcional) Node.js — só para o script `composer setup`, que compila assets
 
