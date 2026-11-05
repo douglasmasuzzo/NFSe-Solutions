@@ -1,13 +1,33 @@
+import Constants from 'expo-constants';
+
 // Configuração base da API + utilitários de URL.
 // Separado de api.ts para poder ser importado pelos schemas Zod e pelos
 // testes sem depender do axios nem do expo-secure-store.
 
-// IMPORTANTE: nunca usar "localhost" aqui — num dispositivo físico ou no
-// emulador, "localhost" aponta para o próprio aparelho, não para a máquina
-// que está rodando `php artisan serve`. Configure EXPO_PUBLIC_API_URL no
-// arquivo .env com o IP da sua máquina na rede local (veja .env.example).
-export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.0.10:8000/api';
+const FALLBACK_API_BASE_URL = 'http://192.168.0.10:8000/api';
+const API_PORT = 8000;
+
+/**
+ * Usa a URL configurada explicitamente quando disponível; caso contrário,
+ * reutiliza o host do servidor Expo na rede local para acessar o Laravel.
+ */
+export function resolveApiBaseUrl(
+  apiUrlOverride = process.env.EXPO_PUBLIC_API_URL,
+  expoHostUri: string | null | undefined = Constants.expoConfig?.hostUri
+): string {
+  const configuredUrl = apiUrlOverride?.trim();
+  if (configuredUrl) return configuredUrl;
+  if (!expoHostUri) return FALLBACK_API_BASE_URL;
+
+  const hostUri = expoHostUri.includes('://')
+    ? expoHostUri
+    : `http://${expoHostUri}`;
+  const { hostname } = new URL(hostUri);
+
+  return `http://${hostname}:${API_PORT}/api`;
+}
+
+export const API_BASE_URL = resolveApiBaseUrl();
 
 /** Origem do servidor (protocolo + host + porta), sem o "/api". */
 export const API_ORIGIN = new URL(API_BASE_URL).origin;

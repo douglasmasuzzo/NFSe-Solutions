@@ -1,5 +1,39 @@
-import { describe, expect, it } from 'vitest';
-import { API_ORIGIN, resolveMediaUrl } from './mediaUrl';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('expo-constants', () => ({
+  default: { expoConfig: { hostUri: '192.168.12.98:8081' } },
+}));
+
+import { API_ORIGIN, resolveApiBaseUrl, resolveMediaUrl } from './mediaUrl';
+
+describe('resolveApiBaseUrl', () => {
+  it('usa o host local do Expo na porta da API', () => {
+    expect(resolveApiBaseUrl(undefined, '192.168.12.98:8081')).toBe(
+      'http://192.168.12.98:8000/api'
+    );
+  });
+
+  it('aceita hostUri com protocolo', () => {
+    expect(resolveApiBaseUrl(undefined, 'https://192.168.12.98:8081')).toBe(
+      'http://192.168.12.98:8000/api'
+    );
+  });
+
+  it('prioriza a URL explícita para servidor remoto ou túnel', () => {
+    expect(
+      resolveApiBaseUrl(
+        'https://api.exemplo.com/api',
+        '192.168.12.98:8081'
+      )
+    ).toBe('https://api.exemplo.com/api');
+  });
+
+  it('mantém a URL padrão se o Expo não fornecer um host', () => {
+    expect(resolveApiBaseUrl(undefined, null)).toBe(
+      'http://192.168.0.10:8000/api'
+    );
+  });
+});
 
 describe('resolveMediaUrl', () => {
   it('retorna null quando não há URL', () => {
