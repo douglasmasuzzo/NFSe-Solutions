@@ -76,29 +76,30 @@ curl http://127.0.0.1:8000/api/notas-fiscais \
 
 Sem o cabeçalho `Authorization`, a API responde **401** — é o comportamento correto.
 
-### Passo 3 : Descobrir o IP do computador
+### Passo 3 : Conferir a rede local
 
-O celular não enxerga `localhost`; ele precisa do IP do computador na rede local.
-
-| Sistema | Comando | O que procurar |
-|---|---|---|
-| Windows | `ipconfig` | "Endereço IPv4" (ex.: `192.168.0.25`) |
-| Linux | `ip addr` ou `hostname -I` | endereço `192.168.x.x` |
-| macOS | `ipconfig getifaddr en0` | endereço `192.168.x.x` |
+Com aparelho físico, computador e celular devem estar na mesma rede Wi-Fi.
+O app obtém o host anunciado pelo Expo automaticamente; não é necessário
+copiar o IP manualmente para o `.env`.
 
 ### Passo 4 : Rodar o app Expo (frontend)
 
 ```bash
 cd NFSeApp
 npm install
-cp .env.example .env
 ```
 
-Edite o `.env` e coloque o IP do passo 3 (com `/api` no final):
+Na rede local, não é necessário configurar o IP no `.env`: o app usa o host
+detectado pelo Expo para acessar a API na porta `8000`. Configure
+`EXPO_PUBLIC_API_URL` em `NFSeApp/.env` apenas se estiver usando Codespaces,
+um túnel ou outro servidor:
 
 ```
-EXPO_PUBLIC_API_URL=http://192.168.0.25:8000/api
+EXPO_PUBLIC_API_URL=https://nome-do-codespace-8000.app.github.dev/api
 ```
+
+Se o arquivo `.env` já tiver uma URL fixa antiga, remova ou comente essa linha
+para ativar a detecção automática.
 
 Depois inicie o Expo:
 

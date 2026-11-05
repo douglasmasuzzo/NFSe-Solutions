@@ -35,13 +35,19 @@ services/    → api.ts (axios + Bearer + 401), mediaUrl.ts (URL das fotos)
 
 ```bash
 npm install
-cp .env.example .env   # edite EXPO_PUBLIC_API_URL com o IP da sua máquina
 npx expo start
 ```
 
-A API Laravel precisa estar rodando (`php artisan serve`) e acessível pelo
-IP configurado em `EXPO_PUBLIC_API_URL` — "localhost" não funciona a partir
-de um dispositivo físico ou emulador.
+A API Laravel precisa estar rodando na porta `8000` e acessível pelo host do
+Expo. Para uso na rede local, inicie-a com
+`php artisan serve --host=0.0.0.0 --port=8000`; o app detecta o host do Expo e
+não exige atualizar o IP no `.env` quando ele mudar. O celular e o computador
+devem estar na mesma rede Wi-Fi.
+
+Para Codespaces, túnel ou uma API em outro host, configure
+`EXPO_PUBLIC_API_URL` no `.env` (copie `.env.example` se ainda não existir) com
+a URL completa da API. Essa configuração explícita tem prioridade sobre a
+detecção automática. O `.env` já está excluído do Git.
 
 ## Login e cadastro
 
