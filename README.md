@@ -184,6 +184,6 @@ cd NFSeApp && npm test && npm run typecheck
 -------------------------------------------
 
 ## Integrantes e Responsabilidades
-- _![@AraragiKoyomi](Moises Santana)(Desenvolvimento Backend)_
-- _![@Torizxz](Tiago Felipe) (Desenvolvimento Frontend)_
-- _![@douglasmasuzzo](Douglas Masuzzo) (Auxiliar)_
+- **BACKEND** : [@AraragiKoyomi](https://github.com/AraragiKoyomi)
+- **FRONTEND** : [@Torizxz](https://github.com/Torizxz)
+- **SUPORTE** : [@douglasmasuzzo](https://github.com/douglasmasuzzo)
