@@ -31,6 +31,9 @@ app/         → rotas do Expo Router, finas; rotas protegidas usam RequireAuth
 services/    → api.ts (axios + Bearer + 401), mediaUrl.ts (URL das fotos)
 ```
 
+Após o login, a homepage oferece atalhos para cadastrar e consultar notas
+fiscais; pela lista é possível editar ou excluir cada registro.
+
 ## Setup
 
 ```bash
@@ -66,8 +69,11 @@ A tela inicial pede autenticação. Duas opções:
   devolve o token — o usuário novo entra no app sem precisar logar. E-mail já
   cadastrado é recusado com a mensagem no campo.
 
-O token fica no `expo-secure-store` (armazenamento criptografado do celular);
-se a API responder 401, o app limpa a sessão e volta para o login sozinho.
+No iOS e Android, o token fica no `expo-secure-store`. Na web, ele fica no
+`sessionStorage` da aba e é removido ao fechar a aba; ao contrário do
+armazenamento nativo, essa opção não criptografa o token e depende das
+proteções do navegador e da aplicação contra XSS. Se a API responder 401, o
+app limpa a sessão e volta para o login sozinho.
 
 ## Câmera e galeria
 
@@ -78,7 +84,7 @@ declaradas no `app.json` (`cameraPermission` / `photosPermission`).
 ## Testes
 
 ```bash
-npm test              # 31 testes de unidade (Vitest): schemas, FormData, URLs, erros
+npm test              # testes de unidade (Vitest): schemas, FormData, URLs, erros e sessão
 npm run typecheck     # validação de tipos (tsc --noEmit)
 ```
 

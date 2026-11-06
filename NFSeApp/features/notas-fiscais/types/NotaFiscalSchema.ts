@@ -73,21 +73,24 @@ export type Fornecedor = z.infer<typeof FornecedorSchema>;
 export const ProdutoSchema = z.object({
   id: z.number(),
   nome: z.string(),
-  preco_venda: z.number(),
+  preco_venda: z.coerce.number(),
 });
 export type Produto = z.infer<typeof ProdutoSchema>;
 
 // Produto como aparece dentro de uma nota (com os dados do vínculo).
 export const ProdutoDaNotaSchema = ProdutoSchema.extend({
   pivot: z.object({
-    quantidade: z.number(),
-    preco_compra: z.number(),
+    quantidade: z.coerce.number(),
+    preco_compra: z.coerce.number(),
   }),
 });
 export type ProdutoDaNota = z.infer<typeof ProdutoDaNotaSchema>;
 
 export const NotaFiscalSchema = NotaFiscalFormSchema.extend({
   id: z.number(),
+  dt_emissao: z
+    .union([z.iso.date(), z.iso.datetime()])
+    .transform((value) => value.slice(0, 10)),
   imagem_nf: z.string().nullable().optional(),
   // A API devolve a URL montada com APP_URL (localhost); o transform
   // reconstrói a URL com o IP real da API para abrir no celular.

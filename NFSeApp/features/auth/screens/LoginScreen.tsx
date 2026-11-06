@@ -76,7 +76,7 @@ export function LoginScreen() {
               style={styles.input}
               value={value}
               onChangeText={onChange}
-              placeholder="test@example.com"
+              placeholder="seu@email.com"
               placeholderTextColor={Colors.placeholder}
               autoCapitalize="none"
               keyboardType="email-address"
@@ -115,10 +115,6 @@ export function LoginScreen() {
             <Text style={styles.buttonText}>Entrar</Text>
           )}
         </TouchableOpacity>
-
-        <Text style={styles.hint}>
-          Acesso de teste: test@example.com / password
-        </Text>
 
         <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/register')}>
           <Text style={styles.linkText}>Ainda não tem conta? Criar conta</Text>
@@ -197,12 +193,6 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: { opacity: 0.6 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  hint: {
-    fontSize: 12,
-    color: Colors.placeholder,
-    textAlign: 'center',
-    marginTop: Spacing.md,
-  },
   linkButton: {
     marginTop: Spacing.sm,
     alignItems: 'center',

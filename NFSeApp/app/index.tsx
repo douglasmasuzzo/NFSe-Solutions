@@ -22,7 +22,8 @@ function HomeContent() {
     <View style={styles.container}>
       <Text style={styles.title}>NFSe Solutions</Text>
       <Text style={styles.subtitle}>
-        Gestão de notas fiscais de fornecedores — app Expo consumindo a API Laravel do projeto.
+        Gerencie as notas fiscais dos seus fornecedores: cadastre, consulte, edite ou exclua
+        documentos.
       </Text>
 
       {user && (
@@ -33,9 +34,25 @@ function HomeContent() {
         </View>
       )}
 
-      <TouchableOpacity style={styles.button} onPress={() => router.push('/notas-fiscais')}>
-        <Text style={styles.buttonText}>Ver notas fiscais</Text>
-      </TouchableOpacity>
+      <View style={styles.actions}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push('/notas-fiscais/new')}
+        >
+          <Text style={styles.buttonText}>Cadastrar nota fiscal</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => router.push('/notas-fiscais')}
+        >
+          <Text style={styles.secondaryButtonText}>Ver minhas notas fiscais</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Text style={styles.actionsHint}>
+        Na lista, toque em uma nota para editar ou use o botão de exclusão.
+      </Text>
 
       <TouchableOpacity
         style={[styles.logoutButton, isPending && { opacity: 0.6 }]}
@@ -90,17 +107,38 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textMuted,
   },
+  actions: {
+    marginTop: Spacing.xl,
+    gap: Spacing.md,
+  },
   button: {
     backgroundColor: Colors.primary,
     borderRadius: Radius.md,
     paddingVertical: Spacing.md,
     alignItems: 'center',
-    marginTop: Spacing.xl,
   },
   buttonText: {
     color: '#fff',
     fontWeight: '700',
     fontSize: 16,
+  },
+  secondaryButton: {
+    borderRadius: Radius.md,
+    paddingVertical: Spacing.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    backgroundColor: Colors.surface,
+  },
+  secondaryButtonText: {
+    color: Colors.primary,
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  actionsHint: {
+    color: Colors.textMuted,
+    fontSize: 13,
+    marginTop: Spacing.sm,
   },
   logoutButton: {
     borderRadius: Radius.md,

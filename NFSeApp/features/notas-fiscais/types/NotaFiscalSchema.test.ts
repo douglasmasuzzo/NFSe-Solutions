@@ -1,4 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('expo-constants', () => ({
+  default: { expoConfig: { hostUri: '192.168.12.98:8081' } },
+}));
+
 import {
   NotaFiscalFormSchema,
   NotaFiscalSchema,
@@ -72,6 +77,8 @@ describe('NotaFiscalFormSchema (entrada do formulário)', () => {
 describe('NotaFiscalSchema (saída da API)', () => {
   const notaDaApi = {
     ...formValido,
+    dt_emissao: '2026-10-13T00:00:00.000000Z',
+    valor_total: '150.50',
     id: 7,
     imagem_nf: 'notas-fiscais/foto.jpg',
     imagem_nf_url: 'http://localhost:8000/storage/notas-fiscais/foto.jpg',
@@ -80,8 +87,8 @@ describe('NotaFiscalSchema (saída da API)', () => {
       {
         id: 2,
         nome: 'Coca-Cola 2L',
-        preco_venda: 9.99,
-        pivot: { quantidade: 10, preco_compra: 6.5 },
+        preco_venda: '9.99',
+        pivot: { quantidade: 10, preco_compra: '6.50' },
       },
     ],
   };
@@ -90,7 +97,10 @@ describe('NotaFiscalSchema (saída da API)', () => {
     const result = NotaFiscalSchema.safeParse(notaDaApi);
     expect(result.success).toBe(true);
     if (result.success) {
+      expect(result.data.dt_emissao).toBe('2026-10-13');
+      expect(result.data.valor_total).toBe(150.5);
       expect(result.data.produtos?.[0].pivot.quantidade).toBe(10);
+      expect(result.data.produtos?.[0].pivot.preco_compra).toBe(6.5);
       expect(result.data.fornecedor?.nome).toBe('Distribuidora');
     }
   });
