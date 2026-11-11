@@ -10,13 +10,13 @@
 
 | Nível | Ferramenta | Onde roda | Comando | Status |
 |---|---|---|---|---|
-| Backend — testes de feature | PHPUnit (Laravel) | `TPNotafiscalAPI` | `php artisan test` | ✅ **30 testes, 30 passando** |
-| Frontend — testes de unidade | Vitest | `NFSeApp` | `npm test` | ✅ **31 testes, 31 passando** |
+| Backend — testes de feature | PHPUnit (Laravel) | `TPNotafiscalAPI` | `php artisan test` | ✅ **39 testes, 39 passando** |
+| Frontend — testes de unidade | Vitest | `NFSeApp` | `npm test` | ✅ **41 testes, 41 passando** |
 | Frontend — tipos | TypeScript | `NFSeApp` | `npm run typecheck` | ✅ **0 erros** |
-| Integração ponta a ponta | script cURL + servidor real | máquina local | ver §4 | ✅ **17/17** |
+| Integração ponta a ponta | script cURL + servidor real | máquina local | ver §4 | ✅ **21/21** |
 | Manual / demonstração | Checklist humano | celular + PC | ver §5 | 📋 checklist |
 
-**Total: 78 verificações automatizadas.**
+**Total: 101 verificações automatizadas.**
 
 ---
 
@@ -53,6 +53,15 @@
 - fluxo completo CRUD de produto
 - preço negativo → 422
 
+### `AccessLevelTest.php` — níveis de acesso / roles (9 testes)
+- login devolve o `role` do usuário
+- **cadastro novo nasce como `user`** (não se auto-promove a admin)
+- usuário comum pode **listar** e **criar** notas (200/201)
+- usuário comum **não pode excluir** nota, fornecedor nem produto → **403**
+  (e o registro continua no banco — a negação não apaga nada)
+- admin **pode excluir** nota e fornecedor → **204**
+- exclusão **sem token** continua → **401** (autenticação vem antes da autorização)
+
 ### Como rodar
 
 ```bash
@@ -70,11 +79,12 @@ php artisan test --filter=AuthTest   # só autenticação
 
 | Arquivo | O que cobre | Testes |
 |---|---|---|
-| `services/mediaUrl.test.ts` | URL da foto reconstruída com o IP da API (bug do `localhost`) | 5 |
+| `services/mediaUrl.test.ts` | URL da foto reconstruída com o IP da API (bug do `localhost`) | 9 |
 | `features/notas-fiscais/types/NotaFiscalSchema.test.ts` | validação do formulário, itens, coerce e contrato da API | 10 |
 | `features/notas-fiscais/utils/toFormData.test.ts` | montagem do multipart: campos, itens `produtos[i][campo]`, foto | 5 |
 | `features/notas-fiscais/utils/apiErrors.test.ts` | erros 422 do Laravel → mensagens por campo | 3 |
-| `features/auth/types/AuthSchema.test.ts` | login e **cadastro**: e-mail, senha mínima de 8, confirmação | 8 |
+| `features/auth/utils/tokenStorage.test.ts` | leitura/gravação do token no armazenamento seguro | 3 |
+| `features/auth/types/AuthSchema.test.ts` | login, **cadastro** e **nível de acesso** (`role`): e-mail, senha mínima, confirmação, papel admin/user | 11 |
 
 > Por que **Vitest** e não emulador? Estes módulos são lógica pura (sem UI).
 > Rodar em Node mantém a execução instantânea (< 1 s) e sem emulador.
@@ -95,15 +105,16 @@ Valida o fluxo completo contra o **servidor real** (`php artisan serve`),
 exatamente como o app vai usar a API:
 
 1. login com senha errada → **422**
-2. login correto → **200 + token**
+2. login correto → **200 + token** (e o seeder é `admin`)
 3. `GET /notas-fiscais` **sem** token → **401**
 4. `GET` **com** token → **200**
 5. `POST` cria nota (com itens) → **201**
 6. `GET /{id}` → **200** · `PUT` → **200** e edição persiste · `DELETE` → **204** · `GET` após delete → **404**
 7. `POST /logout` → **200** e o token usado fica **401** em seguida
 8. `POST /register` cria conta nova → **201** · e-mail duplicado → **422** · login com a conta recém-criada → **200**
+9. **nível de acesso:** conta nova nasce como `user` · exclusão com nível comum → **403** · o registro continua de pé → **200**
 
-Resultado da última execução: **17/17**.
+Resultado da última execução: **21/21**.
 
 ---
 
@@ -115,6 +126,9 @@ Executar no **celular real** (Expo Go) com a API rodando no PC:
 - [ ] **"Criar conta"** abre o cadastro; criar conta nova entra no app **sem precisar logar**
 - [ ] Cadastro com e-mail já existente mostra o erro no campo do e-mail
 - [ ] Login correto entra na home exibindo **nome e e-mail** do usuário
+- [ ] Home exibe o **selo do nível**: "Administrador" (conta `test`) ou "Usuário comum" (conta `user`)
+- [ ] Conta comum: o **🗑 some da lista** e a home não sugere exclusão
+- [ ] Conta admin: o 🗑 aparece, pede confirmação e remove a nota
 - [ ] Home → "Sair da conta" volta para o login e bloqueia as telas internas
 - [ ] Tentar acessar a lista deslogado redireciona para `/login`
 - [ ] Lista carrega com *pull-to-refresh* e botão **"Carregar mais"** (paginação)
@@ -135,5 +149,5 @@ Executar no **celular real** (Expo Go) com a API rodando no PC:
 |---|---|
 | Telas React Native | Detox (E2E em emulador) — ex.: criar nota inteira sem tocar no código |
 | Hooks React Query | Testes com `renderHook` + mock do axios |
-| Segurança | Rate limit no login; testes de autorização por usuário (Sanctum abilities) |
+| Segurança | Rate limit no login; abilities do Sanctum por recurso (hoje a autorização é por `role` via middleware `role:admin`) |
 | OCR (futuro) | Testes de extração de campos com imagens de exemplo (fixtures) |

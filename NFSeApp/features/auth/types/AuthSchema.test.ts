@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LoginSchema, RegisterSchema } from './AuthSchema';
+import { AuthUserSchema, LoginSchema, RegisterSchema } from './AuthSchema';
 
 describe('LoginSchema', () => {
   it('aceita credenciais válidas', () => {
@@ -62,5 +62,25 @@ describe('RegisterSchema', () => {
 
   it('rejeita e-mail inválido', () => {
     expect(RegisterSchema.safeParse({ ...valido, email: 'invalido' }).success).toBe(false);
+  });
+});
+
+describe('AuthUserSchema (nível de acesso)', () => {
+  const base = { id: 1, name: 'Test User', email: 'test@example.com' };
+
+  it('aceita o papel admin', () => {
+    const result = AuthUserSchema.safeParse({ ...base, role: 'admin' });
+    expect(result.success).toBe(true);
+  });
+
+  it('aceita o papel user (nível comum)', () => {
+    const result = AuthUserSchema.safeParse({ ...base, role: 'user' });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejeita papel desconhecido (não existe nível fora de admin/user)', () => {
+    expect(AuthUserSchema.safeParse({ ...base, role: 'superadmin' }).success).toBe(false);
+    // Papel ausente também não passa: a API sempre deve devolver o nível
+    expect(AuthUserSchema.safeParse(base).success).toBe(false);
   });
 });

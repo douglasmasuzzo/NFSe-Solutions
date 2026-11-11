@@ -64,7 +64,7 @@ curl -X POST http://127.0.0.1:8000/api/login \
 Resposta esperada (o token muda a cada login):
 
 ```json
-{"token":"1|AbCdEf...","user":{"id":1,"name":"Test User","email":"test@example.com"}}
+{"token":"1|AbCdEf...","user":{"id":1,"name":"Test User","email":"test@example.com","role":"admin"}}
 ```
 
 Use o token para listar as notas fiscais (devem aparecer as 5 notas do seeder):
@@ -117,7 +117,9 @@ próprio Expo Go; iOS: pela câmera do celular). Para emulador, use `a` (Android
    **Criar conta**).
 2. Abra **Ver notas fiscais** → a lista traz as notas de exemplo.
 3. Teste o CRUD: **+ Nova nota** (com foto pela câmera ou galeria), toque numa nota
-   para **editar** e use o ícone de lixeira para **excluir**.
+   para **editar** e use o ícone de lixeira para **excluir** (exclusão é
+   privilégio do administrador — logue como `user@example.com` para ver a
+   diferença).
 
 ### Variante: rodando no GitHub Codespaces
 
@@ -152,12 +154,16 @@ próprio Expo Go; iOS: pela câmera do celular). Para emulador, use `a` (Android
 ## Acesso de teste
 
 ```
-e-mail: test@example.com
+e-mail: test@example.com   (administrador — pode excluir)
+senha:  password
+
+e-mail: user@example.com   (usuário comum — exclusão bloqueada com 403)
 senha:  password
 ```
 
 (Criado pelo seeder: `php artisan db:seed` no backend. Também dá para
-**criar uma conta nova** pelo app, na tela "Criar conta".)
+**criar uma conta nova** pelo app, na tela "Criar conta" — contas novas
+nascem como usuário comum.)
 
 ------------------------------------------
 
@@ -174,10 +180,10 @@ senha:  password
 ## Testes
 
 ```bash
-# Backend (30 testes)
+# Backend (39 testes)
 cd TPNotafiscalAPI && php artisan test
 
-# Frontend (31 testes + validação de tipos)
+# Frontend (41 testes + validação de tipos)
 cd NFSeApp && npm test && npm run typecheck
 ```
 

@@ -27,7 +27,8 @@ class NotaFiscalCrudTest extends TestCase
     {
         parent::setUp();
 
-        Sanctum::actingAs(User::factory()->create());
+        // Nível admin: os testes de CRUD incluem exclusão (rota role:admin)
+        Sanctum::actingAs(User::factory()->create(['role' => 'admin']));
 
         $this->fornecedor = Fornecedor::create([
             'nome' => 'Distribuidora Brasil LTDA',

@@ -60,7 +60,10 @@ A tela inicial pede autenticação. Duas opções:
   (`php artisan db:seed`):
 
   ```
-  e-mail: test@example.com
+  e-mail: test@example.com   (administrador — pode excluir)
+  senha:  password
+
+  e-mail: user@example.com   (usuário comum — exclusão bloqueada)
   senha:  password
   ```
 
@@ -68,6 +71,10 @@ A tela inicial pede autenticação. Duas opções:
   caracteres) e confirmação; o backend grava a senha criptografada e já
   devolve o token — o usuário novo entra no app sem precisar logar. E-mail já
   cadastrado é recusado com a mensagem no campo.
+
+A home exibe o **selo do nível de acesso** ("Administrador" ou "Usuário
+comum"). O botão 🗑 de excluir só aparece para administradores; a API também
+recusa a exclusão com **403** se alguém chegar pela rota direta.
 
 No iOS e Android, o token fica no `expo-secure-store`. Na web, ele fica no
 `sessionStorage` da aba e é removido ao fechar a aba; ao contrário do
@@ -84,7 +91,7 @@ declaradas no `app.json` (`cameraPermission` / `photosPermission`).
 ## Testes
 
 ```bash
-npm test              # testes de unidade (Vitest): schemas, FormData, URLs, erros e sessão
+npm test              # testes de unidade (Vitest): schemas, FormData, URLs, erros, sessão e níveis de acesso
 npm run typecheck     # validação de tipos (tsc --noEmit)
 ```
 

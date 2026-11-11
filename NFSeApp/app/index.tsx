@@ -15,7 +15,7 @@ export default function HomeScreen() {
 }
 
 function HomeContent() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { mutate: logout, isPending } = useLogout();
 
   return (
@@ -31,6 +31,13 @@ function HomeContent() {
           <Text style={styles.userLabel}>Sessão ativa</Text>
           <Text style={styles.userName}>{user.name}</Text>
           <Text style={styles.userEmail}>{user.email}</Text>
+          <View style={[styles.roleBadge, user.role === 'admin' && styles.roleBadgeAdmin]}>
+            <Text
+              style={[styles.roleBadgeText, user.role === 'admin' && styles.roleBadgeTextAdmin]}
+            >
+              {user.role === 'admin' ? 'Administrador' : 'Usuário comum'}
+            </Text>
+          </View>
         </View>
       )}
 
@@ -51,7 +58,9 @@ function HomeContent() {
       </View>
 
       <Text style={styles.actionsHint}>
-        Na lista, toque em uma nota para editar ou use o botão de exclusão.
+        {isAdmin
+          ? 'Na lista, toque em uma nota para editar ou use o botão de exclusão.'
+          : 'Na lista, toque em uma nota para visualizar e editar.'}
       </Text>
 
       <TouchableOpacity
@@ -106,6 +115,28 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 13,
     color: Colors.textMuted,
+  },
+  roleBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: Colors.background,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 2,
+    marginTop: Spacing.sm,
+  },
+  roleBadgeAdmin: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  roleBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.textMuted,
+  },
+  roleBadgeTextAdmin: {
+    color: '#fff',
   },
   actions: {
     marginTop: Spacing.xl,

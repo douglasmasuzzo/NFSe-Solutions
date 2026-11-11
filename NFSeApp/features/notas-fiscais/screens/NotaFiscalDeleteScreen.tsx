@@ -3,11 +3,29 @@ import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'rea
 import { router } from 'expo-router';
 import { useNotaFiscal } from '../hooks/useNotaFiscal';
 import { useDeleteNotaFiscal } from '../hooks/useDeleteNotaFiscal';
+import { useAuth } from '@/features/auth/context/AuthContext';
 import { Colors, Radius, Spacing } from '@/constants/Theme';
 
 export function NotaFiscalDeleteScreen({ id }: { id: string }) {
+  // Nível de acesso: a rota /delete só faz sentido para admin. Um usuário
+  // comum que chegue aqui (ex.: link antigo) volta para a lista.
+  const { isAdmin } = useAuth();
   const { data: notaFiscal, isLoading } = useNotaFiscal(id);
   const { mutate, isPending } = useDeleteNotaFiscal();
+
+  if (!isAdmin) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.blockedTitle}>Acesso restrito</Text>
+        <Text style={styles.blockedText}>
+          Somente administradores podem excluir notas fiscais.
+        </Text>
+        <TouchableOpacity style={styles.cancelButton} onPress={() => router.replace('/notas-fiscais')}>
+          <Text style={styles.cancelButtonText}>Voltar para a lista</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   if (isLoading || !notaFiscal) {
     return (
@@ -51,6 +69,15 @@ export function NotaFiscalDeleteScreen({ id }: { id: string }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background, padding: Spacing.lg },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  blockedTitle: { fontSize: 20, fontWeight: '700', color: Colors.text },
+  blockedText: {
+    fontSize: 15,
+    color: Colors.textMuted,
+    textAlign: 'center',
+    marginTop: Spacing.sm,
+    lineHeight: 22,
+    marginBottom: Spacing.sm,
+  },
   title: { fontSize: 20, fontWeight: '700', color: Colors.text, marginTop: Spacing.lg },
   message: { fontSize: 15, color: Colors.textMuted, marginTop: Spacing.md, lineHeight: 22 },
   deleteButton: {

@@ -17,7 +17,8 @@ class FornecedorProdutoTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Sanctum::actingAs(User::factory()->create());
+        // Nível admin: os testes de CRUD incluem exclusão (rota role:admin)
+        Sanctum::actingAs(User::factory()->create(['role' => 'admin']));
     }
 
     public function test_fornecedor_crud_flow(): void

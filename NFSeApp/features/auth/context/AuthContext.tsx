@@ -14,6 +14,8 @@ import { clearToken, loadToken } from '../utils/tokenStorage';
 type AuthContextValue = {
   user: AuthUser | null;
   isAuthenticated: boolean;
+  /** true quando o usuário tem nível de acesso 'admin' (pode excluir). */
+  isAdmin: boolean;
   /** false enquanto tentamos restaurar o token salvo no dispositivo. */
   isReady: boolean;
   setSession: (user: AuthUser) => void;
@@ -66,6 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user,
       isAuthenticated: user !== null,
+      isAdmin: user?.role === 'admin',
       isReady,
       setSession,
       clearSession,

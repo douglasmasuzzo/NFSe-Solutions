@@ -1,7 +1,8 @@
 # TPNotafiscalAPI
 
 Backend do NFSe Solutions — API REST em **Laravel 13** (PHP ≥ 8.3) com
-autenticação por token (**Laravel Sanctum**) e **30 testes automatizados**.
+autenticação por token (**Laravel Sanctum**), **nível de acesso por papel**
+(`admin`/`user`) e **39 testes automatizados**.
 
 ## Requisitos
 
@@ -35,7 +36,10 @@ php artisan serve               # API em http://127.0.0.1:8000
 Criado pelo `DatabaseSeeder` com a senha **já criptografada** (bcrypt):
 
 ```
-e-mail: test@example.com
+e-mail: test@example.com        nível: admin (pode excluir)
+senha:  password
+
+e-mail: user@example.com        nível: user  (exclusão → 403)
 senha:  password
 ```
 
@@ -53,6 +57,22 @@ Todas as rotas de recurso exigem o cabeçalho `Authorization: Bearer <token>`:
 3. `POST /api/logout` revoga o token atual
 
 Sem token (ou com token revogado), a API responde **401**.
+
+## Nível de acesso (roles)
+
+A coluna `users.role` guarda o papel, com dois níveis:
+
+| Papel | Pode | Não pode |
+|---|---|---|
+| `admin` | listar, cadastrar, editar e **excluir** | — |
+| `user` | listar, cadastrar e editar | **excluir → 403** |
+
+- O middleware `role:admin` protege as rotas `DELETE` (alias registrado em
+  `bootstrap/app.php`).
+- Conta criada pelo `/api/register` **nasce como `user`** (default da coluna)
+  — não há auto-promoção a admin.
+- O `role` é devolvido em `POST /login`, `POST /register` e `GET /user`, e o
+  app usa para exibir o selo do papel e esconder o botão de excluir.
 
 ## Rotas
 
@@ -81,8 +101,9 @@ Lista completa: `php artisan route:list --path=api`
 ## Testes
 
 ```bash
-php artisan test                          # tudo (30 testes)
+php artisan test                          # tudo (39 testes)
 php artisan test --filter=AuthTest        # autenticação + cadastro (13)
+php artisan test --filter=AccessLevelTest # níveis de acesso / roles (9)
 php artisan test --filter=NotaFiscalCrudTest   # CRUD da nota (9)
 php artisan test --filter=FornecedorProdutoTest # recursos auxiliares (8)
 ```
@@ -97,9 +118,9 @@ php artisan test --filter=FornecedorProdutoTest # recursos auxiliares (8)
 routes/api.php              → login/logout + recursos protegidos
 app/Http/Controllers/       → NotaF, Fornecedor, Produto
 app/Models/                 → NotaF, Fornecedor, Produto, User (HasApiTokens)
-database/migrations/        → 8 migrações
+database/migrations/        → 9 migrações
 database/seeders/           → dados de exemplo + usuário de teste
 database/factories/         → fábricas usadas nos testes
-tests/Feature/              → 30 testes (PHPUnit)
+tests/Feature/              → 39 testes (PHPUnit)
 storage/app/public/         → fotos das notas (via storage:link)
 ```

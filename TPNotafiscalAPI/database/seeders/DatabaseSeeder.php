@@ -22,10 +22,22 @@ class DatabaseSeeder extends Seeder
         // Usuário de teste para login na API (rota POST /api/login)
         // Credenciais: test@example.com / password
         // O cast 'hashed' do model criptografa a senha automaticamente.
+        // role 'admin': pode consultar, cadastrar, editar E excluir.
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => Hash::make('password'),
+            'role' => 'admin',
+        ]);
+
+        // Usuário de nível comum (exclusão bloqueada com 403) — serve para
+        // demonstrar o nível de acesso na apresentação.
+        // Credenciais: user@example.com / password
+        User::factory()->create([
+            'name' => 'Comum User',
+            'email' => 'user@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'user',
         ]);
 
         // ==========================================

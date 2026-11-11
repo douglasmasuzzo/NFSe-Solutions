@@ -1,10 +1,12 @@
 import { z } from 'zod';
 
 // Usuário autenticado devolvido pela API (POST /api/login e GET /api/user).
+// 'role' é o nível de acesso: 'admin' exclui registros, 'user' não.
 export const AuthUserSchema = z.object({
   id: z.number(),
   name: z.string(),
   email: z.string(),
+  role: z.enum(['admin', 'user']),
 });
 export type AuthUser = z.infer<typeof AuthUserSchema>;
 

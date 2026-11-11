@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { NotaFiscal } from '../types/NotaFiscalSchema';
+import { useAuth } from '@/features/auth/context/AuthContext';
 import { Colors, Radius, Spacing } from '@/constants/Theme';
 
 function formatCurrency(value: number) {
@@ -14,6 +15,9 @@ function formatDate(value: string) {
 }
 
 export function NotaFiscalCard({ notaFiscal }: { notaFiscal: NotaFiscal }) {
+  // Nível de acesso: o botão de excluir só aparece para 'admin'
+  const { isAdmin } = useAuth();
+
   return (
     <TouchableOpacity
       style={styles.card}
@@ -42,13 +46,15 @@ export function NotaFiscalCard({ notaFiscal }: { notaFiscal: NotaFiscal }) {
         </View>
       </View>
 
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => router.push(`/notas-fiscais/${notaFiscal.id}/delete`)}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      >
-        <Text style={styles.deleteButtonText}>🗑</Text>
-      </TouchableOpacity>
+      {isAdmin && (
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => router.push(`/notas-fiscais/${notaFiscal.id}/delete`)}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Text style={styles.deleteButtonText}>🗑</Text>
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 }
