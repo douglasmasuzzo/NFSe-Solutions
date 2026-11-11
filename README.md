@@ -140,6 +140,7 @@ próprio Expo Go; iOS: pela câmera do celular). Para emulador, use `a` (Android
 
 | Sintoma | Causa provável | Solução |
 |---|---|---|
+| `No application encryption key has been specified` (`MissingAppKeyException`) | O arquivo `.env` não existe ou `APP_KEY` está vazio | Em `TPNotafiscalAPI`, crie o `.env` com `cp .env.example .env` (Windows: `copy .env.example .env`), execute `php artisan key:generate` e reinicie o servidor |
 | `composer install` reclama que o pacote "requires php >=8.4.1" | `composer.lock` gerado com PHP mais novo que o instalado | Rodar `composer update` e depois `composer install` |
 | `composer install` reclama que `ext-dom` ou `ext-xml` está ausente | Extensões XML do PHP não instaladas ou desativadas | Instalar/habilitar as extensões XML correspondentes à versão do PHP (no Ubuntu/Debian, por exemplo: `sudo apt install php8.4-xml`) |
 | `could not find driver` ao migrar | Extensões SQLite do PHP não instaladas ou desativadas | Instalar/habilitar `pdo_sqlite` / `sqlite3` para a versão do PHP (no Ubuntu/Debian, por exemplo: `sudo apt install php8.4-sqlite3`) |
@@ -171,21 +172,28 @@ nascem como usuário comum.)
 
 - [`docs/ANALISE_E_MELHORIAS.md`](docs/ANALISE_E_MELHORIAS.md) — análise da
   estrutura atual, problemas identificados e roadmap de melhorias.
-- [`docs/TESTES.md`](docs/TESTES.md) — seção de testes: cobertura dos 62
-  testes automatizados (backend + app + integração) e checklist manual de
+- [`docs/TESTES.md`](docs/TESTES.md) — seção de testes: cobertura das 101
+  verificações automatizadas (backend + app + integração) e checklist manual de
   demonstração.
 
 ------------------------------------------
 
-## Testes
+## Teste rápido
+
+Com as dependências instaladas, execute cada bloco a partir da raiz do
+repositório. O primeiro testa a API; o segundo testa o app e verifica os tipos.
 
 ```bash
-# Backend (39 testes)
 cd TPNotafiscalAPI && php artisan test
+```
 
-# Frontend (41 testes + validação de tipos)
+```bash
 cd NFSeApp && npm test && npm run typecheck
 ```
+
+Esses comandos não iniciam os servidores nem exigem emulador. Para testar a
+integração da API ou demonstrar o app no celular, siga os passos de execução
+acima e o [checklist de testes](docs/TESTES.md).
 
 -------------------------------------------
 

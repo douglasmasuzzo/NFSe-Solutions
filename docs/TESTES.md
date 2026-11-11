@@ -102,7 +102,15 @@ npm run typecheck     # validação de tipos (tsc --noEmit)
 ## 4. Teste de integração ponta a ponta (cURL)
 
 Valida o fluxo completo contra o **servidor real** (`php artisan serve`),
-exatamente como o app vai usar a API:
+exatamente como o app vai usar a API. O script está versionado em
+[`scripts/smoke.sh`](../scripts/smoke.sh):
+
+```bash
+# com a API rodando (php artisan serve --host=0.0.0.0 --port=8000)
+bash scripts/smoke.sh        # 21 verificações — espera "21 passaram, 0 falharam"
+```
+
+Passos cobertos:
 
 1. login com senha errada → **422**
 2. login correto → **200 + token** (e o seeder é `admin`)
