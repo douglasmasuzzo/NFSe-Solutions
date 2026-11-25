@@ -15,7 +15,8 @@
           "cameraPermission": "O app precisa da câmera para fotografar a nota fiscal."
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true
