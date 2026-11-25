@@ -1,0 +1,96 @@
+name: CI — 101+ verificações
+
+# Roda a bateria de testes em todo push/PR:
+#   • Backend  — PHPUnit (testes de feature + nível de acesso + rate limit)
+#   • Frontend — Vitest + TypeScript
+#   • Integração — smoke test (21 verificações) contra uma API real no ar
+on:
+  push:
+    branches: [main, 'fix/**', 'feat/**']
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend (PHPUnit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP 8.3 + extensões
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, sqlite3, pdo_sqlite
+          coverage: none
+
+      - name: Dependências (composer)
+        working-directory: TPNotafiscalAPI
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Configura o .env
+        working-directory: TPNotafiscalAPI
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Testes de feature
+        working-directory: TPNotafiscalAPI
+        run: php artisan test
+
+  frontend:
+    name: Frontend (Vitest + tsc)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: NFSeApp/package-lock.json
+
+      - name: Dependências (npm)
+        working-directory: NFSeApp
+        run: npm ci
+
+      - name: Testes de unidade
+        working-directory: NFSeApp
+        run: npm test
+
+      - name: Validação de tipos
+        working-directory: NFSeApp
+        run: npx tsc --noEmit
+
+  integration:
+    name: Integração (API real)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP 8.3 + extensões
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, sqlite3, pdo_sqlite
+          coverage: none
+
+      - name: Dependências (composer)
+        working-directory: TPNotafiscalAPI
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Configura o banco de exemplo
+        working-directory: TPNotafiscalAPI
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          touch database/database.sqlite
+          php artisan migrate --seed
+
+      - name: Sobe a API e roda o smoke test
+        run: |
+          cd TPNotafiscalAPI
+          php artisan serve --host=127.0.0.1 --port=8000 &
+          sleep 3
+          cd ..
+          bash scripts/smoke.sh
