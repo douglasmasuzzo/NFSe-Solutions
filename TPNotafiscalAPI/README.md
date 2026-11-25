@@ -2,7 +2,7 @@
 
 Backend do NFSe Solutions — API REST em **Laravel 13** (PHP ≥ 8.3) com
 autenticação por token (**Laravel Sanctum**), **nível de acesso por papel**
-(`admin`/`user`) e **39 testes automatizados**.
+(`admin`/`user`) e **41 testes automatizados**.
 
 ## Requisitos
 
@@ -101,8 +101,8 @@ Lista completa: `php artisan route:list --path=api`
 ## Testes
 
 ```bash
-php artisan test                          # tudo (39 testes)
-php artisan test --filter=AuthTest        # autenticação + cadastro (13)
+php artisan test                          # tudo (41 testes)
+php artisan test --filter=AuthTest        # autenticação + cadastro (15)
 php artisan test --filter=AccessLevelTest # níveis de acesso / roles (9)
 php artisan test --filter=NotaFiscalCrudTest   # CRUD da nota (9)
 php artisan test --filter=FornecedorProdutoTest # recursos auxiliares (8)
@@ -121,6 +121,6 @@ app/Models/                 → NotaF, Fornecedor, Produto, User (HasApiTokens)
 database/migrations/        → 9 migrações
 database/seeders/           → dados de exemplo + usuário de teste
 database/factories/         → fábricas usadas nos testes
-tests/Feature/              → 39 testes (PHPUnit)
+tests/Feature/              → 41 testes (PHPUnit)
 storage/app/public/         → fotos das notas (via storage:link)
 ```

@@ -202,4 +202,51 @@ class AuthTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors('password');
     }
+
+    public function test_login_rate_limit_blocks_after_five_wrong_attempts(): void
+    {
+        $this->makeUser();
+
+        // 5 tentativas com senha errada → 422 (credenciais inválidas)
+        for ($i = 0; $i < 5; $i++) {
+            $this->postJson('/api/login', [
+                'email' => 'aluno@fatec.pg',
+                'password' => 'senha-errada',
+            ])->assertStatus(422);
+        }
+
+        // 6ª tentativa no mesmo minuto → 429, mesmo com a senha CORRETA:
+        // o bloqueio vale para qualquer tentativa durante a janela
+        $this->postJson('/api/login', [
+            'email' => 'aluno@fatec.pg',
+            'password' => 'senha123',
+        ])->assertStatus(429);
+    }
+
+    public function test_successful_login_clears_failed_attempts_counter(): void
+    {
+        $this->makeUser();
+
+        // 3 erros seguidos
+        for ($i = 0; $i < 3; $i++) {
+            $this->postJson('/api/login', [
+                'email' => 'aluno@fatec.pg',
+                'password' => 'senha-errada',
+            ])->assertStatus(422);
+        }
+
+        // Acertou a senha → contador é zerado
+        $this->postJson('/api/login', [
+            'email' => 'aluno@fatec.pg',
+            'password' => 'senha123',
+        ])->assertOk();
+
+        // Mais 3 erros: sem a zerada seriam 6 e a última já seria 429
+        for ($i = 0; $i < 3; $i++) {
+            $this->postJson('/api/login', [
+                'email' => 'aluno@fatec.pg',
+                'password' => 'senha-errada',
+            ])->assertStatus(422);
+        }
+    }
 }

@@ -156,7 +156,7 @@ TPNotafiscalAPI/
 ├── database/migrations/            → 9 migrações (estrutura do banco)
 ├── database/seeders/               → dados de exemplo + usuário de teste
 ├── database/factories/             → fábricas para os testes automatizados
-├── tests/Feature/                  → 39 testes automatizados (PHPUnit)
+├── tests/Feature/                  → 41 testes automatizados (PHPUnit)
 └── storage/app/public/             → fotos enviadas
 ```
 
@@ -331,16 +331,17 @@ sequenceDiagram
 
 | Nível | Ferramenta | Comando | Resultado |
 |---|---|---|---|
-| Backend (API) | PHPUnit | `php artisan test` | ✅ **39/39** |
+| Backend (API) | PHPUnit | `php artisan test` | ✅ **41/41** |
 | Frontend (lógica) | Vitest | `npm test` | ✅ **41/41** |
 | Tipos (TypeScript) | tsc | `npm run typecheck` | ✅ **0 erros** |
 | Integração (API real) | script cURL | ver `docs/TESTES.md` | ✅ **21/21** |
 
 **O que falar:**
 
-> "São **101 verificações automatizadas**. Os testes do backend cobrem a
+> "São **103 verificações automatizadas**. Os testes do backend cobrem a
 > autenticação (login certo/errado, **cadastro de conta nova**, bloqueio sem
-> token, logout que revoga o token), o **nível de acesso** (usuário comum
+> token, **limite de tentativas no login** — 5 erros seguidos → 429 —,
+> logout que revoga o token), o **nível de acesso** (usuário comum
 > recebe 403 ao tentar excluir; admin exclui; conta nova nasce como usuário
 > comum), o CRUD completo da nota (inclusive **upload de foto** e a
 > **substituição da foto antiga** na edição) e os recursos auxiliares. No app,
@@ -380,7 +381,7 @@ sequenceDiagram
 - **Nível de acesso (roles):** dois papéis — `admin` (exclui registros) e
   `user` (não exclui: a API responde 403 e o app esconde o botão 🗑). Conta
   nova nasce sempre como `user`; o selo do papel aparece na home.
-- **Testes automatizados:** 39 testes de feature no Laravel (PHPUnit) + 41
+- **Testes automatizados:** 41 testes de feature no Laravel (PHPUnit) + 41
   testes de unidade no app (Vitest) + 21 verificações de integração contra o
   servidor real. Documentados em `docs/TESTES.md`.
 - **Delete em tela própria de confirmação**, com modal — não é feito "de
@@ -449,7 +450,7 @@ apenas **pré-preenche o formulário** — o usuário confirma antes de salvar
 > "Hoje o projeto tem um **CRUD completo e funcional** nas duas camadas,
 > com autenticação por token, **cadastro de conta** e **nível de acesso**
 > (admin × usuário comum), câmera para fotografar a nota, itens de produto no
-> formulário, validação em dupla, upload de foto, **101 verificações
+> formulário, validação em dupla, upload de foto, **103 verificações
 > automatizadas** e organização em padrão de mercado. A
 > etapa seguinte é transformar essa foto em **informação**, usando OCR para
 > pré-preencher o formulário — que é o objetivo final do trabalho."
@@ -467,7 +468,7 @@ apenas **pré-preenche o formulário** — o usuário confirma antes de salvar
 | *Por que tiveram que usar `POST + _method=PUT`?* | Porque o PHP não processa `multipart/form-data` em requisições `PUT`; o Laravel resolve com *method spoofing*. |
 | *O app está protegido?* | Sim: login com token Sanctum (material da aula), token guardado no armazenamento seguro do celular, todas as rotas da API exigem `Authorization: Bearer` e o 401 devolve o usuário para o login. |
 | *Existe nível de acesso?* | Sim: `admin` pode excluir registros, `user` recebe **403** na API e o app esconde o botão de excluir. Conta nova nasce como `user` (sem auto-promoção) e a home mostra o selo do papel. |
-| *Como vocês sabem que funciona?* | 101 verificações automatizadas: 39 testes no backend, 41 no app, 21 de integração contra o servidor real + checklist manual das telas (`docs/TESTES.md`). |
+| *Como vocês sabem que funciona?* | 103 verificações automatizadas: 41 testes no backend, 41 no app, 21 de integração contra o servidor real + checklist manual das telas (`docs/TESTES.md`). |
 | *Dá para criar conta nova?* | Sim: tela "Criar conta" → `POST /api/register` valida os campos, grava a senha criptografada (bcrypt) e já devolve o token — o usuário entra logado na hora. E-mail duplicado é recusado. |
 | *O reconhecimento já funciona?* | Ainda não: hoje a foto é anexada (câmera ou galeria) e os campos digitados. O OCR é o próximo módulo, com opções já mapeadas (Slide 11). |
 | *Dá para rodar o projeto?* | Sim: backend com `composer install` + `php artisan migrate --seed` + `php artisan serve`; app com `npm install` e `npx expo start` apontando `EXPO_PUBLIC_API_URL` para o IP da máquina. Login: `test@example.com` / `password`. |

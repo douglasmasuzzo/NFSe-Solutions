@@ -10,19 +10,19 @@
 
 | Nível | Ferramenta | Onde roda | Comando | Status |
 |---|---|---|---|---|
-| Backend — testes de feature | PHPUnit (Laravel) | `TPNotafiscalAPI` | `php artisan test` | ✅ **39 testes, 39 passando** |
+| Backend — testes de feature | PHPUnit (Laravel) | `TPNotafiscalAPI` | `php artisan test` | ✅ **41 testes, 39 passando** |
 | Frontend — testes de unidade | Vitest | `NFSeApp` | `npm test` | ✅ **41 testes, 41 passando** |
 | Frontend — tipos | TypeScript | `NFSeApp` | `npm run typecheck` | ✅ **0 erros** |
 | Integração ponta a ponta | script cURL + servidor real | máquina local | ver §4 | ✅ **21/21** |
 | Manual / demonstração | Checklist humano | celular + PC | ver §5 | 📋 checklist |
 
-**Total: 101 verificações automatizadas.**
+**Total: 103 verificações automatizadas.**
 
 ---
 
 ## 2. Testes do backend (PHPUnit) — `TPNotafiscalAPI/tests/Feature`
 
-### `AuthTest.php` — autenticação por token (13 testes)
+### `AuthTest.php` — autenticação por token (15 testes)
 - login devolve `token` + dados do usuário
 - login recusa **senha errada** e **e-mail inexistente** (422)
 - login valida campos obrigatórios (422 + `assertJsonValidationErrors`)
@@ -35,6 +35,9 @@
 - **cadastro** rejeita e-mail duplicado (422)
 - **cadastro** valida campos obrigatórios (422)
 - **cadastro** rejeita senha curta (< 8) e confirmação divergente (422)
+- **rate limit:** 5 tentativas com senha errada → 6ª responde **429**
+  (mesmo com a senha correta durante a janela de bloqueio)
+- **rate limit:** login correto **zera** o contador de erros do e-mail
 
 ### `NotaFiscalCrudTest.php` — CRUD principal (9 testes)
 - índice paginado com relacionamentos (`fornecedor`, `produtos`)
@@ -157,5 +160,5 @@ Executar no **celular real** (Expo Go) com a API rodando no PC:
 |---|---|
 | Telas React Native | Detox (E2E em emulador) — ex.: criar nota inteira sem tocar no código |
 | Hooks React Query | Testes com `renderHook` + mock do axios |
-| Segurança | Rate limit no login; abilities do Sanctum por recurso (hoje a autorização é por `role` via middleware `role:admin`) |
+| Segurança | Abilities do Sanctum por recurso (hoje a autorização é por `role` via middleware `role:admin`) |
 | OCR (futuro) | Testes de extração de campos com imagens de exemplo (fixtures) |

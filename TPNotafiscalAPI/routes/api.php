@@ -6,7 +6,9 @@ use App\Http\Controllers\ProdutoController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 // =========================================================================
 // Autenticação por token (Laravel Sanctum)
@@ -20,13 +22,33 @@ Route::post('/login', function (Request $request) {
         'password' => ['required'],
     ]);
 
+    // ---------------------------------------------------------------------
+    // Rate limit: no máximo 5 tentativas com senha ERRADA por e-mail em
+    // 60 segundos (conta por IP também). Atingiu o limite → 429.
+    // Uma senha correta ZERA a contagem, então quem acerta nunca é bloqueado.
+    // ---------------------------------------------------------------------
+    $rateKey = 'login:'.Str::lower($request->email).'|'.$request->ip();
+
+    if (RateLimiter::tooManyAttempts($rateKey, 5)) {
+        return response()->json([
+            'error' => 'Muitas tentativas de login. Tente novamente em '
+                .RateLimiter::availableIn($rateKey).' segundos.',
+        ], 429);
+    }
+
     // Busca o usuário pelo e-mail
     $user = User::where('email', $request->email)->first();
 
     // Compara a senha enviada com a senha criptografada do banco
     if (!$user || !Hash::check($request->password, $user->password)) {
+        // Só tentativas ERRADAS contam para o limite (60s cada)
+        RateLimiter::hit($rateKey, 60);
+
         return response()->json(['error' => 'Credenciais inválidas.'], 422);
     }
+
+    // Login correto: limpa as tentativas anteriores deste e-mail
+    RateLimiter::clear($rateKey);
 
     // Cria o token de acesso (Sanctum) e devolve junto os dados do usuário,
     // incluindo o nível de acesso (role) para o app saber o que exibir.

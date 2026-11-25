@@ -148,6 +148,8 @@ próprio Expo Go; iOS: pela câmera do celular). Para emulador, use `a` (Android
 | Mudei o `.env` do app e nada mudou | o Expo lê as variáveis só ao iniciar | Parar e rodar `npx expo start -c` |
 | Fotos das notas não abrem | faltou o `storage:link` | `php artisan storage:link` |
 | App volta para o login sozinho | token expirado/revogado (API respondeu 401) | Entrar novamente |
+| `address already in use` nas portas 8000/8081 | Já existe um `artisan serve` ou `expo start` rodando (de uma sessão anterior) | `ss -tlnp \| grep 8000` (ou `8081`) mostra o PID → `kill <PID>` e suba de novo |
+| Login responde `429` "Muitas tentativas" | Rate limit: 5 senhas erradas em 1 minuto para o mesmo e-mail | Aguardar 60 segundos (ou acertar a senha, que zera a contagem) |
 | Quero recomeçar o banco do zero | — | `php artisan migrate:fresh --seed` |
 
 ----------------------------------

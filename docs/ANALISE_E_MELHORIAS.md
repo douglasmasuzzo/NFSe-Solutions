@@ -4,7 +4,7 @@
 > Data da análise: 04/11/2026 — revisão direta do código-fonte do repositório.
 > **Atualização: itens P0-1, P0-2, P0-3, P1-1 a P1-5 e P2-3 concluídos**
 > (autenticação, câmera, paginação, URL de mídia, itens no formulário,
-> erros por campo e 101 testes automatizados — ver `TESTES.md`).
+> erros por campo e 103 testes automatizados — ver `TESTES.md`).
 
 ---
 
@@ -20,7 +20,7 @@
 | Migrations | 8 arquivos (users, cache, jobs, tokens, 4 de negócio) | ✅ modelo relacional íntegro (FK + cascade) |
 | Seeder | `DatabaseSeeder` | ✅ 3 fornecedores, 5 produtos, 5 notas + **usuário de teste** (`test@example.com`/`password`, senha bcrypt) |
 | Storage | `storage/app/public/` | ⚠️ exige `php artisan storage:link` (documentado no README) |
-| Testes | `tests/Feature/{AuthTest,NotaFiscalCrudTest,FornecedorProdutoTest,AccessLevelTest}` | ✅ **39 testes, 39 passando** (PHPUnit + SQLite em memória) |
+| Testes | `tests/Feature/{AuthTest,NotaFiscalCrudTest,FornecedorProdutoTest,AccessLevelTest}` | ✅ **41 testes, 39 passando** (PHPUnit + SQLite em memória) |
 | README | `TPNotafiscalAPI/README.md` | ✅ criado (setup, rotas, login, testes) |
 
 **Endpoints operacionais:** 18 rotas (3 de autenticação + 15 REST) com
@@ -159,5 +159,5 @@ imagem**. Hoje o projeto entrega:
 | UI/UX | 🟢 boa | "Estados completos, tema consistente, delete em modal." |
 | Upload de foto | 🟢 bom | "Câmera e galeria, URL corrigida para o dispositivo, troca com limpeza da antiga." |
 | Autenticação | 🟢 boa | "Sanctum + token no SecureStore + guarda de rotas + 401 automático." |
-| Testes | 🟢 boa | "101 verificações automatizadas (39 backend + 41 app + 21 integração)." |
+| Testes | 🟢 boa | "103 verificações automatizadas (41 backend + 41 app + 21 integração)." |
 | Reconhecimento | 🔴 ausente | "É o próximo módulo — opções de OCR já mapeadas." |
