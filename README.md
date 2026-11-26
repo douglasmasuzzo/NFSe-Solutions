@@ -1,5 +1,7 @@
 # NFSe Solutions
 
+[![CI — 103 verificações](https://github.com/douglasmasuzzo/NFSe-Solutions/actions/workflows/ci.yml/badge.svg)](https://github.com/douglasmasuzzo/NFSe-Solutions/actions/workflows/ci.yml)
+
 Projeto da disciplina de Dispositivos Móveis (FATEC Praia Grande).
 
 - **`TPNotafiscalAPI/`** — Backend: API REST em Laravel com autenticação por

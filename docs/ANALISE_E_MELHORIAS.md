@@ -95,21 +95,23 @@ imagem**. Hoje o projeto entrega:
 | P1-1 | **API totalmente aberta** — agora todos os `apiResource` estão no grupo `auth:sanctum` (login/register/logout + 13 testes de auth) | ✅ **concluído** |
 | P1-2 | **Erros de validação (422) viram Alert genérico** — `extractValidationErrors()` mapeia para `setError()` campo a campo | ✅ **concluído** |
 | P1-3 | **Itens da nota não existem no app** — `useFieldArray` + chips de produto + soma dos itens no formulário | ✅ **concluído** |
-| P1-4 | **Sem testes automatizados** — 25 PHPUnit + 23 Vitest + 14 de integração (ver `TESTES.md`) | ✅ **concluído** |
+| P1-4 | **Sem testes automatizados** — 41 PHPUnit + 41 Vitest + 21 de integração (ver `TESTES.md`) + **CI no GitHub Actions** | ✅ **concluído** |
 | P1-5 | **`README` do backend inexistente** — criado `TPNotafiscalAPI/README.md` | ✅ **concluído** |
 | P1-6 | **Sem tratamento de timeout offline** (10 s fixos) | ⏳ pendente |
+| P1-7 | **Sem limite de tentativas no login** — rate limit de 5 erros/60s por e-mail → **429** (acerto zera a contagem), coberto por 2 testes | ✅ **concluído** |
 
 ### 🟡 P2 — melhorias de maturidade
 
 | # | Problema | Status |
 |---|---|---|
 | P2-1 | Validação no backend inline no controller (sem `FormRequest`) | ⏳ pendente |
-| P2-2 | Sem ESLint/Prettier no app e sem CI | ⏳ pendente |
+| P2-2 | Sem ESLint/Prettier no app | ⏳ pendente (o **CI** já está ✅ — GitHub Actions com 3 jobs em todo push) |
 | P2-3 | Sem paginação na UI — agora `useInfiniteQuery` + "Carregar mais" | ✅ **concluído** |
 | P2-4 | `valor_total` aceita valor divergente da soma dos itens (sem regra de negócio) — hoje só **exibe** a soma | ⏳ pendente |
 | P2-5 | Nome "NFSe" remete a Nota Fiscal de **Serviços** Eletrônica, mas o modelo é de **produtos** — convém alinhar o texto apresentado | ⏳ pendente |
 | P2-6 | README raiz com campo de integrantes incompleto ("Moises ...") | ⏳ pendente (grupo) |
 | P2-7 | Sem identificadores Android/iOS no `app.json` — necessário para build | ⏳ pendente |
+| P2-8 | `npm audit` aponta 3 avisos **moderate** no `minimatch` (via `@expo/fingerprint`, ferramenta de build do Expo) | ✅ **decidido: manter** — a correção automática exige rebaixar o `expo` para a v52 (breaking change); o aviso é de ferramenta de desenvolvimento (DoS local via glob), não afeta o app nem a API |
 
 ---
 
